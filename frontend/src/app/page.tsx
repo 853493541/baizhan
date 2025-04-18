@@ -16,7 +16,7 @@ export default function CharactersPage() {
 
   // Load character list on mount
   useEffect(() => {
-    api.get('/')
+    api.get('/characters')
       .then((res) => {
         console.log('🧠 Characters:', res.data); // debug
         setCharacters(res.data);
