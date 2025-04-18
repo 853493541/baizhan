@@ -29,19 +29,19 @@ export default function CharactersPage() {
     if (!selected || !ability) return;
     try {
       await api.put(`/characters/${selected}`, { ability, level });
-      alert('✅ Ability updated!');
+      alert('✅ 技能更新!');
       // Refresh list
       const updated = await api.get('/characters');
       setCharacters(updated.data);
     } catch (err) {
-      alert('❌ Update failed');
+      alert('❌ 更新失败');
       console.error(err);
     }
   };
 
   return (
     <main className="p-6 max-w-2xl mx-auto font-sans">
-      <h1 className="text-2xl font-bold mb-4">🧙 Characters</h1>
+      <h1 className="text-2xl font-bold mb-4">角色</h1>
 
       <ul className="space-y-4 mb-6">
         {characters.map((char) => (
@@ -82,7 +82,7 @@ export default function CharactersPage() {
             className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
             onClick={updateAbility}
           >
-            ✅ Update
+            ✅ 添加
           </button>
         </div>
       )}
