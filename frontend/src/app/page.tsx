@@ -28,10 +28,10 @@ export default function CharactersPage() {
   const updateAbility = async () => {
     if (!selected || !ability) return;
     try {
-      await api.put(`/${selected}`, { ability, level });
+      await api.put(`/characters/${selected}`, { ability, level });
       alert('✅ Ability updated!');
       // Refresh list
-      const updated = await api.get('/');
+      const updated = await api.get('/characters');
       setCharacters(updated.data);
     } catch (err) {
       alert('❌ Update failed');
