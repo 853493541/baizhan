@@ -56,7 +56,7 @@ export default function CharactersPage() {
               className="mt-2 text-blue-600 hover:underline"
               onClick={() => setSelected(char.name)}
             >
-              ✏️ Edit
+              ✏️ 添加技能（写入）
             </button>
           </li>
         ))}
@@ -64,16 +64,16 @@ export default function CharactersPage() {
 
       {selected && (
         <div className="border-t pt-4">
-          <h2 className="text-xl font-semibold mb-2">Edit {selected}</h2>
+          <h2 className="text-xl font-semibold mb-2">角色： {selected}</h2>
           <div className="flex gap-2 mb-2">
             <input
-              placeholder="Ability 名字"
+              placeholder="百战技能"
               className="border p-1 px-2 rounded w-40"
               onChange={(e) => setAbility(e.target.value)}
             />
             <input
               type="number"
-              placeholder="Level 等级"
+              placeholder="重数"
               className="border p-1 px-2 rounded w-24"
               onChange={(e) => setLevel(Number(e.target.value))}
             />
