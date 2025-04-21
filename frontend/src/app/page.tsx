@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import api from './utils/api';
-import CharacterEditor from './CharacterEditor';
+import EditCharacterInfo from './EditCharacterInfo';
+import EditCharacterAbilities from './EditCharacterAbilities';
+import styles from './Styles/CharacterPage.module.css';
 
 type Character = {
   name: string;
@@ -12,15 +14,17 @@ type Character = {
   abilities: { [key: string]: number };
 };
 
+type EditMode = 'info' | 'abilities' | null;
+
 export default function CharactersPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [editingChar, setEditingChar] = useState<Character | null>(null);
+  const [editMode, setEditMode] = useState<EditMode>(null);
 
-  // Load characters on mount
   useEffect(() => {
-    api.get('/characters')
+    api
+      .get('/characters')
       .then((res) => {
-        console.log('🧠 Characters:', res.data);
         setCharacters(res.data);
       })
       .catch((err) => console.error('❌ Failed to load characters:', err));
@@ -33,6 +37,7 @@ export default function CharactersPage() {
       const refreshed = await api.get('/characters');
       setCharacters(refreshed.data);
       setEditingChar(null);
+      setEditMode(null);
     } catch (err) {
       alert('❌ 保存失败');
       console.error(err);
@@ -40,21 +45,31 @@ export default function CharactersPage() {
   };
 
   return (
-    <main className="p-6 max-w-5xl mx-auto font-sans">
-      <h1 className="text-3xl font-bold mb-6">角色管理</h1>
+    <main className={styles.container}>
+      <h1 className={styles.title}>角色管理</h1>
 
       {!editingChar ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+        <div className={styles.cardGrid}>
           {characters.map((char) => (
-            <div
-              key={char.name}
-              className="border rounded-xl p-4 shadow hover:shadow-md transition-all"
-            >
-              <div className="text-xl font-semibold">{char.name}</div>
-              <div className="text-gray-600 mt-1">账号: {char.account}</div>
-              <div className="text-gray-600 mt-1">职业: {char.class}</div>
-              <div className="text-gray-600 mt-1">定位: {char.role}</div>
-              <div className="text-sm text-gray-800 mt-2">
+            <div key={char.name} className={styles.card}>
+              <div className={styles.cardTitleRow}>
+                <div className={styles.cardTitle}>
+                  {char.name} {char.role} {char.class}
+                </div>
+                <div className={styles.accountInfo}>
+                  账号:{char.account}
+                  <button
+                    onClick={() => {
+                      setEditingChar(char);
+                      setEditMode('info');
+                    }}
+                  >
+                    <span className="text-lg">⚙️</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.abilityText}>
                 技能：
                 {Object.entries(char.abilities).length > 0 ? (
                   Object.entries(char.abilities)
@@ -64,20 +79,36 @@ export default function CharactersPage() {
                   <span className="italic text-gray-400">无</span>
                 )}
               </div>
+
               <button
-                className="mt-3 text-blue-600 hover:underline"
-                onClick={() => setEditingChar(char)}
+                className={styles.editBtn}
+                onClick={() => {
+                  setEditingChar(char);
+                  setEditMode('abilities');
+                }}
               >
-                ✏️ 编辑
+                ✏️ 编辑技能
               </button>
             </div>
           ))}
         </div>
-      ) : (
-        <CharacterEditor
+      ) : editMode === 'info' ? (
+        <EditCharacterInfo
           character={editingChar}
           onSave={handleSave}
-          onCancel={() => setEditingChar(null)}
+          onCancel={() => {
+            setEditingChar(null);
+            setEditMode(null);
+          }}
+        />
+      ) : (
+        <EditCharacterAbilities
+          character={editingChar}
+          onSave={handleSave}
+          onCancel={() => {
+            setEditingChar(null);
+            setEditMode(null);
+          }}
         />
       )}
     </main>

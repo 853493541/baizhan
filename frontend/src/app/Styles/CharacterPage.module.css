@@ -1,0 +1,74 @@
+.container {
+    padding: 1.5rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    font-family: sans-serif;
+  }
+  
+  .title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cardGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .cardGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s;
+  }
+  
+  .card:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  
+  .cardTitleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+  
+  .cardTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .accountInfo {
+    font-size: 0.875rem;
+    color: #6b7280; /* gray-500 */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .abilityText {
+    font-size: 0.875rem;
+    color: #1f2937; /* gray-800 */
+    margin-top: 0.5rem;
+  }
+  
+  .editBtn {
+    margin-top: 0.75rem;
+    color: #2563eb; /* blue-600 */
+    cursor: pointer;
+  }
+  
+  .editBtn:hover {
+    text-decoration: underline;
+  }
+  
