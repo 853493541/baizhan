@@ -13,14 +13,15 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// GET one character
+// GET one character by name
 interface CharacterParams {
   name: string;
 }
+
 router.get(
   '/:name',
   async (
-    req: Request<CharacterParams, {}, {}, {}>, // ✅ all 4 generics specified
+    req: Request<CharacterParams, {}, {}, {}>,
     res: Response
   ) => {
     const { name } = req.params;
@@ -35,35 +36,30 @@ router.get(
   }
 );
 
-// PUT /:name
-interface AbilityUpdateBody {
-  ability: string;
-  level: number;
-}
+// PUT full character update
 router.put(
   '/:name',
   async (
-    req: Request<CharacterParams, {}, AbilityUpdateBody, {}>, // ✅ exact Request type
+    req: Request<CharacterParams>,
     res: Response
   ) => {
     const { name } = req.params;
-    const { ability, level } = req.body;
+    const updatedData = req.body;
 
     try {
-      const character = await Character.findOne({ name });
+      const character = await Character.findOneAndUpdate(
+        { name },
+        updatedData,
+        { new: true, runValidators: true }
+      );
+
       if (!character)
         return res.status(404).json({ error: 'Character not found' });
 
-      if (character.abilities instanceof Map) {
-        character.abilities.set(ability, level);
-      } else {
-        character.abilities[ability] = level;
-      }
-
-      await character.save();
-      res.json({ message: 'Ability updated', character });
+      res.json({ message: 'Character updated', character });
     } catch (err) {
-      res.status(500).json({ error: 'Failed to update ability' });
+      console.error('❌ 更新失败:', err);
+      res.status(500).json({ error: 'Failed to update character' });
     }
   }
 );

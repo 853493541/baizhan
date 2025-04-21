@@ -2,89 +2,83 @@
 
 import { useEffect, useState } from 'react';
 import api from './utils/api';
+import CharacterEditor from './CharacterEditor';
 
 type Character = {
   name: string;
+  account: string;
+  role: string;
+  class: string;
   abilities: { [key: string]: number };
 };
 
 export default function CharactersPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [ability, setAbility] = useState('');
-  const [level, setLevel] = useState<number>(0);
+  const [editingChar, setEditingChar] = useState<Character | null>(null);
 
-  // Load character list on mount
+  // Load characters on mount
   useEffect(() => {
     api.get('/characters')
       .then((res) => {
-        console.log('🧠 Characters:', res.data); // debug
+        console.log('🧠 Characters:', res.data);
         setCharacters(res.data);
       })
-      .catch((err) => console.error('❌ Fetch failed:', err));
+      .catch((err) => console.error('❌ Failed to load characters:', err));
   }, []);
 
-  // Update ability
-  const updateAbility = async () => {
-    if (!selected || !ability) return;
+  const handleSave = async (updatedChar: Character) => {
     try {
-      await api.put(`/characters/${selected}`, { ability, level });
-      alert('✅ 技能更新!');
-      // Refresh list
-      const updated = await api.get('/characters');
-      setCharacters(updated.data);
+      await api.put(`/characters/${updatedChar.name}`, updatedChar);
+      alert('✅ 信息已保存!');
+      const refreshed = await api.get('/characters');
+      setCharacters(refreshed.data);
+      setEditingChar(null);
     } catch (err) {
-      alert('❌ 更新失败');
+      alert('❌ 保存失败');
       console.error(err);
     }
   };
 
   return (
-    <main className="p-6 max-w-2xl mx-auto font-sans">
-      <h1 className="text-2xl font-bold mb-4">角色</h1>
+    <main className="p-6 max-w-5xl mx-auto font-sans">
+      <h1 className="text-3xl font-bold mb-6">角色管理</h1>
 
-      <ul className="space-y-4 mb-6">
-        {characters.map((char) => (
-          <li key={char.name} className="border p-4 rounded shadow-sm">
-            <div className="font-semibold text-lg">{char.name}</div>
-            <div className="text-sm text-gray-700 mt-1">
-              {Object.entries(char.abilities)
-                .map(([k, v]) => `${k}: ${v}`)
-                .join(', ')}
-            </div>
-            <button
-              className="mt-2 text-blue-600 hover:underline"
-              onClick={() => setSelected(char.name)}
+      {!editingChar ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+          {characters.map((char) => (
+            <div
+              key={char.name}
+              className="border rounded-xl p-4 shadow hover:shadow-md transition-all"
             >
-              ✏️ 添加技能（写入）
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {selected && (
-        <div className="border-t pt-4">
-          <h2 className="text-xl font-semibold mb-2">角色： {selected}</h2>
-          <div className="flex gap-2 mb-2">
-            <input
-              placeholder="百战技能"
-              className="border p-1 px-2 rounded w-40"
-              onChange={(e) => setAbility(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="重数"
-              className="border p-1 px-2 rounded w-24"
-              onChange={(e) => setLevel(Number(e.target.value))}
-            />
-          </div>
-          <button
-            className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
-            onClick={updateAbility}
-          >
-            ✅ 添加
-          </button>
+              <div className="text-xl font-semibold">{char.name}</div>
+              <div className="text-gray-600 mt-1">账号: {char.account}</div>
+              <div className="text-gray-600 mt-1">职业: {char.class}</div>
+              <div className="text-gray-600 mt-1">定位: {char.role}</div>
+              <div className="text-sm text-gray-800 mt-2">
+                技能：
+                {Object.entries(char.abilities).length > 0 ? (
+                  Object.entries(char.abilities)
+                    .map(([k, v]) => `${k}: ${v}`)
+                    .join(', ')
+                ) : (
+                  <span className="italic text-gray-400">无</span>
+                )}
+              </div>
+              <button
+                className="mt-3 text-blue-600 hover:underline"
+                onClick={() => setEditingChar(char)}
+              >
+                ✏️ 编辑
+              </button>
+            </div>
+          ))}
         </div>
+      ) : (
+        <CharacterEditor
+          character={editingChar}
+          onSave={handleSave}
+          onCancel={() => setEditingChar(null)}
+        />
       )}
     </main>
   );
