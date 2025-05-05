@@ -95,7 +95,7 @@ export default function GroupCharts({ groups, setGroups }: Props) {
               autoSaveGroups(updated);
             }}
           >
-            <h3>Group {index + 1}</h3>
+            <h3>组 {index + 1}</h3>
             {group.map((char) => (
               <div
                 key={char._id}

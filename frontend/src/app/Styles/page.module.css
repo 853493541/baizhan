@@ -1,7 +1,57 @@
+/* container and headings */
 .container {
   padding: 2rem;
 }
 
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.subheading {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* button row */
+.buttonRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.inventoryBox {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.inventoryBox:hover {
+  background-color: #2563eb;
+}
+
+.button {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  background: #f3f4f6;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}
+
+.button:hover {
+  background: #e5e7eb;
+}
+
+/* character & group layout */
 .characterList {
   display: flex;
   flex-wrap: wrap;
@@ -13,8 +63,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+  margin-bottom: 2rem;
 }
 
+/* subcomponents (if you need these here) */
 .groupBox {
   border: 2px dashed #ccc;
   padding: 1rem;
@@ -32,7 +84,6 @@
   text-align: center;
 }
 
-/* Role-Based Colors */
 .goldBox {
   background-color: #ffeeaa;
   color: #a55b00;
@@ -53,17 +104,6 @@
   color: #333;
 }
 
-.buttonRow {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.button {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-}
 .warningBox {
   margin-top: 0.5rem;
   color: red;
