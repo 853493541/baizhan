@@ -2,115 +2,73 @@
 
 import { useEffect, useState } from 'react';
 import api from './utils/api';
-import EditCharacterInfo from './EditCharacterInfo';
-import EditCharacterAbilities from './EditCharacterAbilities';
-import styles from './Styles/CharacterPage.module.css';
+import styles from './Styles/page.module.css';
+import AvailableCharacters from './AvailableCharacters';
+import GroupCharts from './GroupCharts';
+import GroupAbilitySummary from './GroupAbilitySummary';
 
-type Character = {
+export type Character = {
+  _id: string;
   name: string;
   account: string;
   role: string;
   class: string;
-  abilities: { [key: string]: number };
+  abilities?: { [key: string]: number };
 };
 
-type EditMode = 'info' | 'abilities' | null;
+type GroupDoc = {
+  groupIndex: number;
+  characters: Character[];
+};
 
-export default function CharactersPage() {
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [editingChar, setEditingChar] = useState<Character | null>(null);
-  const [editMode, setEditMode] = useState<EditMode>(null);
+export default function Page() {
+  const [allCharacters, setAllCharacters] = useState<Character[]>([]);
+  const [groups, setGroups] = useState<Character[][]>(Array.from({ length: 8 }, () => []));
 
   useEffect(() => {
-    api
-      .get('/characters')
+    api.get('/characters')
+      .then((res) => setAllCharacters(res.data as Character[]))
+      .catch((err) => console.error('Failed to fetch characters:', err));
+
+    api.get('/groups')
       .then((res) => {
-        setCharacters(res.data);
+        const sorted = (res.data as GroupDoc[]).sort((a, b) => a.groupIndex - b.groupIndex);
+        const restored = sorted.map((g) => g.characters);
+        setGroups(restored);
       })
-      .catch((err) => console.error('❌ Failed to load characters:', err));
+      .catch((err) => console.error('Failed to fetch groups:', err));
   }, []);
 
-  const handleSave = async (updatedChar: Character) => {
+  const assignedIds = new Set(groups.flat().map((c) => c._id));
+  const ungroupedCharacters = allCharacters.filter((c) => !assignedIds.has(c._id));
+
+  const handleResetGroups = async () => {
     try {
-      await api.put(`/characters/${updatedChar.name}`, updatedChar);
-      alert('✅ 信息已保存!');
-      const refreshed = await api.get('/characters');
-      setCharacters(refreshed.data);
-      setEditingChar(null);
-      setEditMode(null);
+      await api.delete('/groups');
+      setGroups(Array.from({ length: 8 }, () => []));
     } catch (err) {
-      alert('❌ 保存失败');
-      console.error(err);
+      console.error('Reset failed:', err);
     }
   };
 
   return (
-    <main className={styles.container}>
-      <h1 className={styles.title}>角色管理</h1>
+    <div className={styles.container}>
+      <h1>Group Scheduling - Iteration 3</h1>
 
-      {!editingChar ? (
-        <div className={styles.cardGrid}>
-          {characters.map((char) => (
-            <div key={char.name} className={styles.card}>
-              <div className={styles.cardTitleRow}>
-                <div className={styles.cardTitle}>
-                  {char.name} {char.role} {char.class}
-                </div>
-                <div className={styles.accountInfo}>
-                  账号:{char.account}
-                  <button
-                    onClick={() => {
-                      setEditingChar(char);
-                      setEditMode('info');
-                    }}
-                  >
-                    <span className="text-lg">⚙️</span>
-                  </button>
-                </div>
-              </div>
+      <button onClick={handleResetGroups} className={styles.button}>
+        🗑 Reset All Groups
+      </button>
 
-              <div className={styles.abilityText}>
-                技能：
-                {Object.entries(char.abilities).length > 0 ? (
-                  Object.entries(char.abilities)
-                    .map(([k, v]) => `${k}: ${v}`)
-                    .join(', ')
-                ) : (
-                  <span className="italic text-gray-400">无</span>
-                )}
-              </div>
+      <AvailableCharacters
+        characters={ungroupedCharacters}
+        groups={groups}
+        setGroups={setGroups}
+      />
 
-              <button
-                className={styles.editBtn}
-                onClick={() => {
-                  setEditingChar(char);
-                  setEditMode('abilities');
-                }}
-              >
-                ✏️ 编辑技能
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : editMode === 'info' ? (
-        <EditCharacterInfo
-          character={editingChar}
-          onSave={handleSave}
-          onCancel={() => {
-            setEditingChar(null);
-            setEditMode(null);
-          }}
-        />
-      ) : (
-        <EditCharacterAbilities
-          character={editingChar}
-          onSave={handleSave}
-          onCancel={() => {
-            setEditingChar(null);
-            setEditMode(null);
-          }}
-        />
-      )}
-    </main>
+      <GroupCharts groups={groups} setGroups={setGroups} />
+
+      <h2 style={{ marginTop: '2rem' }}>Ability Summary</h2>
+      <GroupAbilitySummary groups={groups} setGroups={setGroups} />
+    </div>
   );
 }

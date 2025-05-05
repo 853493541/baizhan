@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import characterRoutes from './routes/characterRoutes';
+import groupRoutes from './routes/groupRoutes';
 
 const app = express(); // ✅ declare app first
 const PORT = 5000;    // ✅ use a different port than frontend
@@ -10,7 +11,7 @@ const PORT = 5000;    // ✅ use a different port than frontend
 // ✅ Middlewares
 app.use(cors());
 app.use(express.json());
-
+app.use('/api/groups', groupRoutes);
 // ✅ MongoDB connection
 mongoose.connect(
   'mongodb+srv://zhibinren79:xIF0wEyWZ55rEvS3@cluster0.sedw7v9.mongodb.net/baizhan?retryWrites=true&w=majority&appName=Cluster0'

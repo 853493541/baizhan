@@ -23,13 +23,22 @@ export default function EditCharacterAbilities({ character, onSave, onCancel }: 
   const [newAbilityLevel, setNewAbilityLevel] = useState<number>(0);
 
   const updateAbilityLevel = (name: string, level: number) => {
-    setEditable({
-      ...editable,
+    if (level < 0) return;
+    setEditable((prev) => ({
+      ...prev,
       abilities: {
-        ...editable.abilities,
+        ...prev.abilities,
         [name]: level,
       },
-    });
+    }));
+  };
+
+  const increaseLevel = (name: string) => {
+    updateAbilityLevel(name, editable.abilities[name] + 1);
+  };
+
+  const decreaseLevel = (name: string) => {
+    updateAbilityLevel(name, Math.max(0, editable.abilities[name] - 1));
   };
 
   const deleteAbility = (name: string) => {
@@ -40,13 +49,13 @@ export default function EditCharacterAbilities({ character, onSave, onCancel }: 
 
   const addAbility = () => {
     if (!newAbilityName || newAbilityLevel <= 0) return;
-    setEditable({
-      ...editable,
+    setEditable((prev) => ({
+      ...prev,
       abilities: {
-        ...editable.abilities,
+        ...prev.abilities,
         [newAbilityName]: newAbilityLevel,
       },
-    });
+    }));
     setNewAbilityName('');
     setNewAbilityLevel(0);
   };
@@ -59,12 +68,9 @@ export default function EditCharacterAbilities({ character, onSave, onCancel }: 
         {Object.entries(editable.abilities).map(([name, level]) => (
           <li key={name} className={styles.abilityItem}>
             <span className={styles.abilityLabel}>{name}</span>
-            <input
-              type="number"
-              className={styles.abilityInput}
-              value={level}
-              onChange={(e) => updateAbilityLevel(name, Number(e.target.value))}
-            />
+            <button className={styles.adjustBtn} onClick={() => decreaseLevel(name)}>-</button>
+            <span className={styles.levelDisplay}>{level}</span>
+            <button className={styles.adjustBtn} onClick={() => increaseLevel(name)}>+</button>
             <button className={styles.deleteBtn} onClick={() => deleteAbility(name)}>
               删除
             </button>

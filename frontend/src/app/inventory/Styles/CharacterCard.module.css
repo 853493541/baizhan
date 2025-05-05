@@ -1,0 +1,97 @@
+.card {
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s, background-color 0.3s;
+  }
+  
+  .card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  .cardTopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .cardTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .accountInfo {
+    font-size: 0.875rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .cardBottomRow {
+    margin-top: 0.5rem;
+  }
+  
+  .abilityAndButton {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .abilityText {
+    font-size: 0.875rem;
+    color: #374151;
+    white-space: pre-wrap;
+    flex-grow: 1;
+    min-width: 0;
+  }
+  
+  .editBtn {
+    white-space: nowrap;
+    color: #2563eb;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    background: white;
+    flex-shrink: 0;
+  }
+  
+  .editBtn:hover {
+    background-color: #eff6ff;
+  }
+  
+  /* ✅ FIXED Role coloring (DPS is now green, Tank is now gold) */
+  .goldBox {
+    background-color: #ffeeaa; /* now used for Tank */
+    color: #a55b00;
+  }
+  
+  .pinkBox {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+  }
+  
+  .greenBox {
+    background-color: #c8e6c9; /* now used for DPS */
+    color: #1b5e20;
+  }
+
+  .filterRow {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .filterLabel {
+    font-size: 0.9rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
