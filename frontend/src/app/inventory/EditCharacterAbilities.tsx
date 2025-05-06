@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import styles from './Styles/EditCharacterAbilities.module.css';
 
-type Character = {
+export type Character = {
+  _id: string;
   name: string;
   account: string;
   role: string;
@@ -11,40 +12,39 @@ type Character = {
   abilities: { [key: string]: number };
 };
 
-type Props = {
+interface Props {
   character: Character;
   onSave: (updated: Character) => void;
   onCancel: () => void;
-};
+}
 
-export default function EditCharacterAbilities({ character, onSave, onCancel }: Props) {
+export default function EditCharacterAbilities({
+  character,
+  onSave,
+  onCancel,
+}: Props) {
   const [editable, setEditable] = useState<Character>({ ...character });
   const [newAbilityName, setNewAbilityName] = useState('');
-  const [newAbilityLevel, setNewAbilityLevel] = useState<number>(0);
+  const [newAbilityLevel, setNewAbilityLevel] = useState(0);
 
   const updateAbilityLevel = (name: string, level: number) => {
     if (level < 0) return;
     setEditable((prev) => ({
       ...prev,
-      abilities: {
-        ...prev.abilities,
-        [name]: level,
-      },
+      abilities: { ...prev.abilities, [name]: level },
     }));
   };
 
-  const increaseLevel = (name: string) => {
+  const increaseLevel = (name: string) =>
     updateAbilityLevel(name, editable.abilities[name] + 1);
-  };
 
-  const decreaseLevel = (name: string) => {
+  const decreaseLevel = (name: string) =>
     updateAbilityLevel(name, Math.max(0, editable.abilities[name] - 1));
-  };
 
   const deleteAbility = (name: string) => {
-    const updated = { ...editable.abilities };
-    delete updated[name];
-    setEditable({ ...editable, abilities: updated });
+    const copy = { ...editable.abilities };
+    delete copy[name];
+    setEditable({ ...editable, abilities: copy });
   };
 
   const addAbility = () => {
@@ -68,10 +68,23 @@ export default function EditCharacterAbilities({ character, onSave, onCancel }: 
         {Object.entries(editable.abilities).map(([name, level]) => (
           <li key={name} className={styles.abilityItem}>
             <span className={styles.abilityLabel}>{name}</span>
-            <button className={styles.adjustBtn} onClick={() => decreaseLevel(name)}>-</button>
+            <button
+              className={styles.adjustBtn}
+              onClick={() => decreaseLevel(name)}
+            >
+              –
+            </button>
             <span className={styles.levelDisplay}>{level}</span>
-            <button className={styles.adjustBtn} onClick={() => increaseLevel(name)}>+</button>
-            <button className={styles.deleteBtn} onClick={() => deleteAbility(name)}>
+            <button
+              className={styles.adjustBtn}
+              onClick={() => increaseLevel(name)}
+            >
+              +
+            </button>
+            <button
+              className={styles.deleteBtn}
+              onClick={() => deleteAbility(name)}
+            >
               删除
             </button>
           </li>
@@ -99,7 +112,10 @@ export default function EditCharacterAbilities({ character, onSave, onCancel }: 
       </div>
 
       <div className={styles.buttonRow}>
-        <button className={styles.saveButton} onClick={() => onSave(editable)}>
+        <button
+          className={styles.saveButton}
+          onClick={() => onSave(editable)}
+        >
           💾 保存
         </button>
         <button className={styles.cancelButton} onClick={onCancel}>

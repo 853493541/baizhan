@@ -13,55 +13,37 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// GET one character by name
-interface CharacterParams {
-  name: string;
-}
-
-router.get(
-  '/:name',
-  async (
-    req: Request<CharacterParams, {}, {}, {}>,
-    res: Response
-  ) => {
-    const { name } = req.params;
-    try {
-      const character = await Character.findOne({ name });
-      if (!character)
-        return res.status(404).json({ error: 'Character not found' });
-      res.json(character);
-    } catch (err) {
-      res.status(500).json({ error: 'Server error' });
+// GET one character by Mongo _id
+router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  try {
+    const character = await Character.findById(id);
+    if (!character) {
+      return res.status(404).json({ error: 'Character not found' });
     }
+    res.json(character);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
-);
+});
 
-// PUT full character update
-router.put(
-  '/:name',
-  async (
-    req: Request<CharacterParams>,
-    res: Response
-  ) => {
-    const { name } = req.params;
-    const updatedData = req.body;
-
-    try {
-      const character = await Character.findOneAndUpdate(
-        { name },
-        updatedData,
-        { new: true, runValidators: true }
-      );
-
-      if (!character)
-        return res.status(404).json({ error: 'Character not found' });
-
-      res.json({ message: 'Character updated', character });
-    } catch (err) {
-      console.error('❌ 更新失败:', err);
-      res.status(500).json({ error: 'Failed to update character' });
+// PUT full character update by Mongo _id
+router.put('/:id', async (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+  try {
+    const character = await Character.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true,
+    });
+    if (!character) {
+      return res.status(404).json({ error: 'Character not found' });
     }
+    res.json({ message: 'Character updated', character });
+  } catch (err) {
+    console.error('❌ 更新失败:', err);
+    res.status(500).json({ error: 'Failed to update character' });
   }
-);
+});
 
 export default router;
