@@ -3,10 +3,13 @@ import Character from '../models/Character';
 
 const router = express.Router();
 
-// GET all characters
-router.get('/', async (_req: Request, res: Response) => {
+// GET all characters, optionally filter by owner
+router.get('/', async (req: Request, res: Response) => {
+  const { owner } = req.query;
+  const query = owner ? { owner } : {};
+
   try {
-    const characters = await Character.find();
+    const characters = await Character.find(query);
     res.json(characters);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch characters' });

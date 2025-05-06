@@ -37,7 +37,7 @@ export default function GroupAbilitySummary({ groups, setGroups }: Props) {
             handleDrop(index, char);
           }}
         >
-          <h3>Group {index + 1}</h3>
+          <h3>组 {index + 1}</h3>
           {group.map((char) => {
             const abilityText = Object.entries(char.abilities || {})
               .map(([key, level]) => `${level}${key}`)

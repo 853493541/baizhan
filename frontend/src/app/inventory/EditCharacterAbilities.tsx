@@ -4,7 +4,7 @@ import { useState } from 'react';
 import styles from './Styles/EditCharacterAbilities.module.css';
 
 export type Character = {
-  _id: string;
+  _id?: string; // ✅ made optional here
   name: string;
   account: string;
   role: string;

@@ -12,16 +12,34 @@ type Role = 'DPS' | 'Healer' | 'Tank';
 type RolePlusAll = Role | 'All';
 type EditMode = 'info' | 'abilities' | null;
 
+const roleLabels: { [key in RolePlusAll]: string } = {
+  All: '全部',
+  DPS: '输出',
+  Healer: '治疗',
+  Tank: 'T',
+};
+
+const ownerLabels: { [key: string]: string } = {
+  All: '全部',
+  CatCatCake: '猫猫糕',
+  SquareHouse: '东海甜妹',
+  Orange: '桔子',
+};
+
 export default function CharacterPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [editingChar, setEditingChar] = useState<Character | null>(null);
   const [editMode, setEditMode] = useState<EditMode>(null);
 
-  // single‐choice via checkboxes
   const [selectedRole, setSelectedRole] = useState<RolePlusAll>('All');
+  const [ownerFilter, setOwnerFilter] = useState<string>('All');
 
   useEffect(() => {
-    api.get('/characters')
+    const query: string[] = [];
+    if (ownerFilter !== 'All') query.push(`owner=${encodeURIComponent(ownerFilter)}`);
+    const queryStr = query.length > 0 ? `?${query.join('&')}` : '';
+
+    api.get(`/characters${queryStr}`)
       .then(res => {
         const sanitized = res.data.map((c: Character) => ({
           ...c,
@@ -30,7 +48,7 @@ export default function CharacterPage() {
         setCharacters(sanitized);
       })
       .catch(err => console.error('❌ Failed to load:', err));
-  }, []);
+  }, [ownerFilter]);
 
   const handleSave = (updatedChar: Character): void => {
     api.put(`/characters/${updatedChar._id}`, updatedChar)
@@ -51,29 +69,48 @@ export default function CharacterPage() {
       });
   };
 
-  // clicking any checkbox selects that role; clicking it again resets to 'All'
   const selectRole = (role: RolePlusAll) => {
     setSelectedRole(prev => prev === role ? 'All' : role);
   };
 
+  const selectOwner = (owner: string) => {
+    setOwnerFilter(prev => prev === owner ? 'All' : owner);
+  };
+
   const filtered = characters.filter(char =>
-    selectedRole === 'All' || char.role === selectedRole
+    (selectedRole === 'All' || char.role === selectedRole)
   );
 
   return (
     <main className={styles.container}>
       <h1 className={styles.title}>角色管理</h1>
 
-      {/* Single‐choice checkboxes */}
+      {/* Role Filter */}
       <div className={styles.filterRow}>
-        {(['All', 'DPS', 'Healer', 'Tank'] as RolePlusAll[]).map(role => (
+        <strong>定位:</strong>
+        {(Object.keys(roleLabels) as RolePlusAll[]).map(role => (
           <label key={role} className={styles.filterLabel}>
             <input
               type="checkbox"
               checked={selectedRole === role}
               onChange={() => selectRole(role)}
             />
-            {role}
+            {roleLabels[role]}
+          </label>
+        ))}
+      </div>
+
+      {/* Owner Filter */}
+      <div className={styles.filterRow}>
+        <strong>玩家:</strong>
+        {Object.keys(ownerLabels).map(owner => (
+          <label key={owner} className={styles.filterLabel}>
+            <input
+              type="checkbox"
+              checked={ownerFilter === owner}
+              onChange={() => selectOwner(owner)}
+            />
+            {ownerLabels[owner]}
           </label>
         ))}
       </div>

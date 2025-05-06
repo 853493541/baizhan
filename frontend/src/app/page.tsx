@@ -59,7 +59,7 @@ export default function Page() {
   return (
     <div className={styles.container}>
       {/* note: we added className={styles.title} here */}
-      <h1 className={styles.title}>百战排表 – Iteration 4</h1>
+      <h1 className={styles.title}>百战排表</h1>
 
       <div className={styles.buttonRow}>
         <a href="/inventory" className={styles.inventoryBox}>
@@ -82,7 +82,7 @@ export default function Page() {
         <GroupCharts groups={groups} setGroups={setGroups} />
       </div>
 
-      <h2 className={styles.subheading}>Ability Summary</h2>
+      <h2 className={styles.subheading}>技能表</h2>
       <div className={styles.groups}>
         <GroupAbilitySummary groups={groups} setGroups={setGroups} />
       </div>

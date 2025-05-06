@@ -111,7 +111,7 @@ export default function GroupCharts({ groups, setGroups }: Props) {
                   );
                   autoSaveGroups(updated);
                 }}
-                title="Right click to remove"
+                title="右键取消"
               >
                 {char.name}
               </div>
