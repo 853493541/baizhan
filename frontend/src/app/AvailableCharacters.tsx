@@ -1,7 +1,8 @@
 'use client';
 
 import styles from './Styles/page.module.css';
-import type { Character } from './page';
+
+import type { Character } from './types';
 
 interface Props {
   characters: Character[];
@@ -45,7 +46,7 @@ export default function AvailableCharacters({ characters, groups, setGroups }: P
             e.dataTransfer.setData('text/plain', JSON.stringify(char));
           }}
         >
-          {char.name}
+          {char.comboBurst ? `@${char.name}` : char.name}
         </div>
       ))}
     </div>

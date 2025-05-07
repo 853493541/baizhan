@@ -6,15 +6,7 @@ import styles from './Styles/page.module.css';
 import AvailableCharacters from './AvailableCharacters';
 import GroupCharts from './GroupCharts';
 import GroupAbilitySummary from './GroupAbilitySummary';
-
-export type Character = {
-  _id: string;
-  name: string;
-  account: string;
-  role: string;
-  class: string;
-  abilities?: { [key: string]: number };
-};
+import type { Character } from './types';
 
 type GroupDoc = {
   groupIndex: number;
@@ -28,20 +20,24 @@ export default function Page() {
   );
 
   useEffect(() => {
-    api
-      .get('/characters')
-      .then((res) => setAllCharacters(res.data as Character[]))
-      .catch((err) => console.error('Failed to fetch characters:', err));
+    Promise.all([
+      api.get('/characters'),
+      api.get('/groups'),
+    ])
+      .then(([charRes, groupRes]) => {
+        const all = charRes.data as Character[];
+        const map = new Map(all.map((c) => [c._id, c]));
 
-    api
-      .get('/groups')
-      .then((res) => {
-        const sorted = (res.data as GroupDoc[]).sort(
-          (a, b) => a.groupIndex - b.groupIndex
-        );
-        setGroups(sorted.map((g) => g.characters));
+        const sortedGroups = (groupRes.data as GroupDoc[])
+          .sort((a, b) => a.groupIndex - b.groupIndex)
+          .map((g) =>
+            g.characters.map((c) => map.get(c._id) || c)
+          );
+
+        setAllCharacters(all);
+        setGroups(sortedGroups);
       })
-      .catch((err) => console.error('Failed to fetch groups:', err));
+      .catch((err) => console.error('Failed to fetch data:', err));
   }, []);
 
   const assignedIds = new Set(groups.flat().map((c) => c._id));
@@ -58,7 +54,6 @@ export default function Page() {
 
   return (
     <div className={styles.container}>
-      {/* note: we added className={styles.title} here */}
       <h1 className={styles.title}>百战排表</h1>
 
       <div className={styles.buttonRow}>

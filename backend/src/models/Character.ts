@@ -10,6 +10,7 @@ export interface CharacterDoc extends mongoose.Document {
     core: { [key: string]: number };
     healing: { [key: string]: number };
   };
+  comboBurst?: boolean; // ✅ NEW FIELD
 }
 
 const characterSchema = new mongoose.Schema<CharacterDoc>({
@@ -21,7 +22,8 @@ const characterSchema = new mongoose.Schema<CharacterDoc>({
   abilities: {
     core: { type: Map, of: Number, default: {} },
     healing: { type: Map, of: Number, default: {} }
-  }
+  },
+  comboBurst: { type: Boolean, default: false } // ✅ NEW FIELD IN SCHEMA
 });
 
 const Character =

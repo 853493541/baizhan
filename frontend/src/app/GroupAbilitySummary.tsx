@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './Styles/page.module.css';
-import type { Character } from './page';
+import type { Character } from './types';
 import { getEffectiveAbilities } from './utils/abilityUtils';
 
 interface Props {

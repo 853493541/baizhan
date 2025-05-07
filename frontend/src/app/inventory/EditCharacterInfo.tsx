@@ -2,14 +2,7 @@
 
 import { useState } from 'react';
 import styles from './Styles/EditCharacterInfo.module.css';
-
-type Character = {
-  name: string;
-  account: string;
-  role: string;
-  class: string;
-  abilities: { [key: string]: number };
-};
+import type { Character } from '../types';
 
 type Props = {
   character: Character;
@@ -21,19 +14,21 @@ const roles = ['DPS', 'Tank', 'Healer'];
 const classes = ['七秀', '天策', '明教', '少林', '凌雪', '纯阳', '药宗', '五毒', '刀宗', '蓬莱'];
 
 export default function EditCharacterInfo({ character, onSave, onCancel }: Props) {
-  const [editable, setEditable] = useState<Character>({ ...character });
+  // Only edit role and class; retain everything else when saving
+  const [role, setRole] = useState(character.role);
+  const [charClass, setCharClass] = useState(character.class);
 
   return (
     <div className={styles.editorContainer}>
-      <h2 className={styles.title}>编辑角色信息：{editable.name}</h2>
+      <h2 className={styles.title}>编辑角色信息：{character.name}</h2>
 
       <div className={styles.formRow}>
         <div>
           <label className={styles.label}>定位 (role)</label>
           <select
             className={styles.select}
-            value={editable.role}
-            onChange={(e) => setEditable({ ...editable, role: e.target.value })}
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
           >
             {roles.map((r) => (
               <option key={r} value={r}>
@@ -47,8 +42,8 @@ export default function EditCharacterInfo({ character, onSave, onCancel }: Props
           <label className={styles.label}>职业 (class)</label>
           <select
             className={styles.select}
-            value={editable.class}
-            onChange={(e) => setEditable({ ...editable, class: e.target.value })}
+            value={charClass}
+            onChange={(e) => setCharClass(e.target.value)}
           >
             {classes.map((c) => (
               <option key={c} value={c}>
@@ -60,7 +55,12 @@ export default function EditCharacterInfo({ character, onSave, onCancel }: Props
       </div>
 
       <div className={styles.buttonRow}>
-        <button className={styles.saveButton} onClick={() => onSave(editable)}>
+        <button
+          className={styles.saveButton}
+          onClick={() =>
+            onSave({ ...character, role, class: charClass })
+          }
+        >
           💾 保存
         </button>
         <button className={styles.cancelButton} onClick={onCancel}>

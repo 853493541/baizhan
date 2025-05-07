@@ -3,18 +3,8 @@
 import styles from './Styles/page.module.css';
 import api from './utils/api';
 import { useCallback } from 'react';
+import type { Character } from './types';
 
-type Character = {
-  _id: string;
-  name: string;
-  account: string;
-  role: string;
-  class: string;
-  abilities?: {
-    core?: { [key: string]: number };
-    healing?: { [key: string]: number };
-  };
-};
 
 interface Props {
   groups: Character[][];
@@ -116,7 +106,7 @@ export default function GroupCharts({ groups, setGroups }: Props) {
                 }}
                 title="右键取消"
               >
-                {char.name}
+                {char.comboBurst ? `@${char.name}` : char.name}
               </div>
             ))}
 

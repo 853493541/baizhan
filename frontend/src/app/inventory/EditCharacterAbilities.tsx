@@ -9,6 +9,7 @@ export type Character = {
   account: string;
   role: string;
   class: string;
+  comboBurst?: boolean;
   abilities: {
     core: { [key: string]: number };
     healing: { [key: string]: number };
@@ -27,25 +28,21 @@ export default function EditCharacterAbilities({
   onCancel,
 }: Props) {
   const [editable, setEditable] = useState<Character>({ ...character });
-  const [newAbilityName, setNewAbilityName] = useState('');
-  const [newAbilityLevel, setNewAbilityLevel] = useState(0);
+  //const [newAbilityName, setNewAbilityName] = useState('');
+  //const [newAbilityLevel, setNewAbilityLevel] = useState(0);
 
-  const getLevel = (name: string): number => {
-    return editable.abilities.core[name] ??
-      editable.abilities.healing[name] ??
-      0;
-  };
+  const getLevel = (name: string): number =>
+    editable.abilities.core[name] ?? editable.abilities.healing[name] ?? 0;
 
   const findTargetGroup = (name: string): 'core' | 'healing' => {
     if (name in editable.abilities.core) return 'core';
     if (name in editable.abilities.healing) return 'healing';
-    return 'core'; // default new abilities to core
+    return 'core';
   };
 
   const updateAbilityLevel = (name: string, level: number) => {
     if (level < 0) return;
     const target = findTargetGroup(name);
-
     setEditable((prev) => ({
       ...prev,
       abilities: {
@@ -68,7 +65,6 @@ export default function EditCharacterAbilities({
     const target = findTargetGroup(name);
     const copy = { ...editable.abilities[target] };
     delete copy[name];
-
     setEditable((prev) => ({
       ...prev,
       abilities: {
@@ -78,27 +74,26 @@ export default function EditCharacterAbilities({
     }));
   };
 
-  const addAbility = () => {
-    if (!newAbilityName || newAbilityLevel <= 0) return;
-
+  const toggleComboBurst = () => {
     setEditable((prev) => ({
       ...prev,
-      abilities: {
-        ...prev.abilities,
-        core: {
-          ...prev.abilities.core,
-          [newAbilityName]: newAbilityLevel,
-        },
-      },
+      comboBurst: !prev.comboBurst,
     }));
-
-    setNewAbilityName('');
-    setNewAbilityLevel(0);
   };
 
   return (
     <div className={styles.editorContainer}>
       <h2 className={styles.title}>编辑技能：{editable.name}</h2>
+
+      <div className={styles.comboBurstRow}>
+        <span>真元：</span>
+        <button
+          onClick={toggleComboBurst}
+          className={editable.comboBurst ? styles.toggleOn : styles.toggleOff}
+        >
+          {editable.comboBurst ? '  ✅  ' : '  ❌  '}
+        </button>
+      </div>
 
       <h3 className={styles.subtitle}>核心技能</h3>
       <ul className={styles.abilityList}>
@@ -126,6 +121,7 @@ export default function EditCharacterAbilities({
         ))}
       </ul>
 
+      {/*
       <div className={styles.addRow}>
         <input
           type="text"
@@ -145,6 +141,7 @@ export default function EditCharacterAbilities({
           ➕ 添加技能（默认加在核心技能）
         </button>
       </div>
+      */}
 
       <div className={styles.buttonRow}>
         <button className={styles.saveButton} onClick={() => onSave(editable)}>

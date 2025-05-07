@@ -121,3 +121,26 @@
   text-align: center;
   font-weight: 500;
 }
+
+.comboBurstRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem; /* Adds space below */
+}
+
+/* Example toggle button styles */
+.toggleOn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.toggleOff {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}

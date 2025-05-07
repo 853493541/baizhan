@@ -9,4 +9,5 @@ export type Character = {
     core: { [key: string]: number };
     healing: { [key: string]: number };
   };
+  comboBurst?: boolean; // ✅ NEW FIELD
 };
