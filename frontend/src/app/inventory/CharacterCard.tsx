@@ -13,15 +13,21 @@ export default function CharacterCard({ character, onEditInfo, onEditAbilities }
   const getRoleClass = (role: string) => {
     switch (role) {
       case 'DPS':
-        return styles.greenBox;  // ← DPS is now green
+        return styles.greenBox;
       case 'Healer':
         return styles.pinkBox;
       case 'Tank':
-        return styles.goldBox;   // ← Tank is now gold
+        return styles.goldBox;
       default:
         return '';
     }
   };
+
+  const healingClasses = ['七秀', '五毒', '药宗', '长歌', '万花'];
+  const showHealing = healingClasses.includes(character.class);
+
+  const coreAbilities = Object.entries(character.abilities.core || {});
+  const healingAbilities = showHealing ? Object.entries(character.abilities.healing || {}) : [];
 
   return (
     <div className={`${styles.card} ${getRoleClass(character.role)}`}>
@@ -36,9 +42,12 @@ export default function CharacterCard({ character, onEditInfo, onEditAbilities }
       <div className={styles.cardBottomRow}>
         <div className={styles.abilityAndButton}>
           <div className={styles.abilityText}>
-            {Object.entries(character.abilities)
-              .map(([k, v]) => `${v}${k}`)
-              .join(' ')}
+            {coreAbilities.length > 0
+              ? coreAbilities.map(([k, v]) => `${v}${k}`).join(' ')
+              : '无技能'}
+            {healingAbilities.length > 0 && <br />}
+            {healingAbilities.length > 0 &&
+              healingAbilities.map(([k, v]) => `${v}${k}`).join(' ')}
           </div>
           <button className={styles.editBtn} onClick={() => onEditAbilities(character)}>
             ✏️ 编辑技能

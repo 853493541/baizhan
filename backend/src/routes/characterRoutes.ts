@@ -33,7 +33,19 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
 // PUT full character update by Mongo _id
 router.put('/:id', async (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
-  const updatedData = req.body;
+  const incomingData = req.body;
+
+  // Ensure abilities are structured properly
+  const structuredAbilities = {
+    core: incomingData.abilities?.core || {},
+    healing: incomingData.abilities?.healing || {},
+  };
+
+  const updatedData = {
+    ...incomingData,
+    abilities: structuredAbilities,
+  };
+
   try {
     const character = await Character.findByIdAndUpdate(id, updatedData, {
       new: true,

@@ -1,9 +1,12 @@
 // src/app/types.ts
 export type Character = {
-  _id?: string;            // now optional
+  _id?: string;
   name: string;
   account: string;
   role: string;
   class: string;
-  abilities: { [key: string]: number };
+  abilities: {
+    core: { [key: string]: number };
+    healing: { [key: string]: number };
+  };
 };
