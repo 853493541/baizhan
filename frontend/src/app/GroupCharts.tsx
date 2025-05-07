@@ -10,7 +10,10 @@ type Character = {
   account: string;
   role: string;
   class: string;
-  abilities?: { [key: string]: number };
+  abilities?: {
+    core?: { [key: string]: number };
+    healing?: { [key: string]: number };
+  };
 };
 
 interface Props {
@@ -37,27 +40,27 @@ export default function GroupCharts({ groups, setGroups }: Props) {
 
   const validateGroup = (group: Character[]): string[] => {
     const warnings: string[] = [];
-
     const accountSet = new Set<string>();
     const abilityCounts: { [key: string]: number } = {};
     let hasHealer = false;
 
     for (const char of group) {
-      // Rule 1: Duplicate account
+      // Rule 1: No duplicate accounts
       if (accountSet.has(char.account)) {
         warnings.push('⚠️ 同账号角色');
       } else {
         accountSet.add(char.account);
       }
 
-      // Rule 2: Count abilities
-      if (char.abilities) {
-        for (const ability of Object.keys(char.abilities)) {
+      // Rule 2: Count only core abilities with level >= 9
+      const core = char.abilities?.core ?? {};
+      for (const [ability, level] of Object.entries(core)) {
+        if (level >= 9) {
           abilityCounts[ability] = (abilityCounts[ability] || 0) + 1;
         }
       }
 
-      // Rule 3: Must have at least one healer
+      // Rule 3: Must include at least one healer
       if (char.role.toLowerCase() === 'healer') hasHealer = true;
     }
 

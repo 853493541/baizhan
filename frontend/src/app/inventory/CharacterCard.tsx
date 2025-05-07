@@ -2,12 +2,16 @@
 
 import styles from './Styles/CharacterCard.module.css';
 import { Character } from '../types';
+import { getEffectiveAbilities } from '../utils/abilityUtils';
 
 type Props = {
   character: Character;
   onEditInfo: (char: Character) => void;
   onEditAbilities: (char: Character) => void;
 };
+
+const isHealerClass = (charClass: string) =>
+  ['七秀', '五毒', '药宗', '长歌', '万花'].includes(charClass);
 
 export default function CharacterCard({ character, onEditInfo, onEditAbilities }: Props) {
   const getRoleClass = (role: string) => {
@@ -23,11 +27,10 @@ export default function CharacterCard({ character, onEditInfo, onEditAbilities }
     }
   };
 
-  const healingClasses = ['七秀', '五毒', '药宗', '长歌', '万花'];
-  const showHealing = healingClasses.includes(character.class);
-
-  const coreAbilities = Object.entries(character.abilities.core || {});
-  const healingAbilities = showHealing ? Object.entries(character.abilities.healing || {}) : [];
+  const core = getEffectiveAbilities(character.abilities?.core ?? {});
+  const healing = isHealerClass(character.class)
+    ? getEffectiveAbilities(character.abilities?.healing ?? {})
+    : {};
 
   return (
     <div className={`${styles.card} ${getRoleClass(character.role)}`}>
@@ -41,13 +44,19 @@ export default function CharacterCard({ character, onEditInfo, onEditAbilities }
 
       <div className={styles.cardBottomRow}>
         <div className={styles.abilityAndButton}>
-          <div className={styles.abilityText}>
-            {coreAbilities.length > 0
-              ? coreAbilities.map(([k, v]) => `${v}${k}`).join(' ')
-              : '无技能'}
-            {healingAbilities.length > 0 && <br />}
-            {healingAbilities.length > 0 &&
-              healingAbilities.map(([k, v]) => `${v}${k}`).join(' ')}
+          <div>
+            <div className={styles.abilityText}>
+              {Object.entries(core)
+                .map(([name, level]) => `${level}${name}`)
+                .join(' ')}
+            </div>
+            {Object.keys(healing).length > 0 && (
+              <div className={styles.abilityText}>
+                {Object.entries(healing)
+                  .map(([name, level]) => `${level}${name}`)
+                  .join(' ')}
+              </div>
+            )}
           </div>
           <button className={styles.editBtn} onClick={() => onEditAbilities(character)}>
             ✏️ 编辑技能
