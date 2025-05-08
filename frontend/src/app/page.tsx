@@ -79,7 +79,11 @@ export default function Page() {
 
       <h2 className={styles.subheading}>技能表</h2>
       <div className={styles.groups}>
-        <GroupAbilitySummary groups={groups} setGroups={setGroups} />
+        <GroupAbilitySummary
+          groups={groups}
+          setGroups={setGroups}
+          allCharacters={allCharacters} // ✅ this line fixes the error
+        />
       </div>
     </div>
   );

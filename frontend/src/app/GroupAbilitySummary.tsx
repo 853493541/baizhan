@@ -1,15 +1,17 @@
 'use client';
 
+import React, { useState } from 'react';
 import styles from './Styles/page.module.css';
 import type { Character } from './types';
 import { getEffectiveAbilities } from './utils/abilityUtils';
+import api from './utils/api';
 
 interface Props {
   groups: Character[][];
   setGroups: (groups: Character[][]) => void;
+  allCharacters: Character[];
 }
 
-// Simplify names (e.g., 黑煞 → 黑)
 const simplifyAbilityName = (name: string): string => {
   if (name.startsWith('黑')) return '黑';
   if (name.startsWith('花')) return '花';
@@ -32,27 +34,50 @@ const getColorClass = (role: string): string => {
   }
 };
 
-export default function GroupAbilitySummary({ groups, setGroups }: Props) {
-  const handleDrop = (groupIndex: number, char: Character) => {
+export default function GroupAbilitySummary({ groups, setGroups, allCharacters }: Props) {
+  const [suggestingIndex, setSuggestingIndex] = useState<number | null>(null);
+
+  const handleAddToGroup = async (groupIndex: number, char: Character) => {
     const updated = groups.map((g) => g.filter((c) => c._id !== char._id));
     updated[groupIndex] = [...updated[groupIndex], char];
     setGroups(updated);
+    setSuggestingIndex(null);
+
+    try {
+      const payload = updated.map((group) =>
+        group.map((c) => ({
+          _id: c._id,
+          name: c.name,
+          account: c.account,
+          role: c.role,
+          class: c.class,
+          abilities: {
+            core: { ...(c.abilities?.core || {}) },
+            healing: { ...(c.abilities?.healing || {}) },
+          },
+        }))
+      );
+      const res = await api.post('/groups', payload);
+      console.debug('✅ Saved groups after click:', res.status);
+    } catch (err) {
+      console.error('❌ Failed to save groups on click:', err);
+    }
   };
 
   return (
     <div className={styles.groups}>
       {groups.map((group, index) => (
-        <div
-          key={index}
-          className={styles.groupBox}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            const char = JSON.parse(e.dataTransfer.getData('text/plain'));
-            handleDrop(index, char);
-          }}
-        >
+        <div key={index} className={styles.groupBox}>
           <h3>组 {index + 1}</h3>
+          <button
+            className={styles.suggestButton}
+            onClick={() =>
+              setSuggestingIndex((prev) => (prev === index ? null : index))
+            }
+          >
+            建议角色
+          </button>
+
           {group.map((char) => {
             const coreRaw =
               typeof char.abilities?.core === 'object' ? char.abilities.core : {};
@@ -66,16 +91,39 @@ export default function GroupAbilitySummary({ groups, setGroups }: Props) {
               <div
                 key={char._id}
                 className={`${styles.characterCard} ${getColorClass(char.role)}`}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('text/plain', JSON.stringify(char));
-                }}
-                title={`Drag ${char.name} to another group`}
+                title={char.name}
               >
                 {coreText}
               </div>
             );
           })}
+
+          {suggestingIndex === index && (
+            <div className={styles.suggestionBox}>
+              {allCharacters.map((char) => {
+                const coreRaw =
+                  typeof char.abilities?.core === 'object'
+                    ? char.abilities.core
+                    : {};
+                const effectiveCore = getEffectiveAbilities(coreRaw);
+                const coreText =
+                  Object.entries(effectiveCore)
+                    .map(([key, level]) => `${level}${simplifyAbilityName(key)}`)
+                    .join(' ') || '(none)';
+
+                return (
+                  <div
+                    key={char._id}
+                    className={`${styles.characterCard} ${getColorClass(char.role)}`}
+                    onClick={() => handleAddToGroup(index, char)}
+                    title={char.name}
+                  >
+                    {coreText}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       ))}
     </div>
