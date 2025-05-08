@@ -18,21 +18,18 @@ export default function Page() {
   const [groups, setGroups] = useState<Character[][]>(
     Array.from({ length: 8 }, () => [])
   );
+  const [showAbilityLevel, setShowAbilityLevel] = useState(true);
+  const [showContributor, setShowContributor] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      api.get('/characters'),
-      api.get('/groups'),
-    ])
+    Promise.all([api.get('/characters'), api.get('/groups')])
       .then(([charRes, groupRes]) => {
         const all = charRes.data as Character[];
         const map = new Map(all.map((c) => [c._id, c]));
 
         const sortedGroups = (groupRes.data as GroupDoc[])
           .sort((a, b) => a.groupIndex - b.groupIndex)
-          .map((g) =>
-            g.characters.map((c) => map.get(c._id) || c)
-          );
+          .map((g) => g.characters.map((c) => map.get(c._id) || c));
 
         setAllCharacters(all);
         setGroups(sortedGroups);
@@ -54,7 +51,7 @@ export default function Page() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>百战排表</h1>
+      <h1 className={styles.title}>百战排表 I7</h1>
 
       <div className={styles.buttonRow}>
         <a href="/inventory" className={styles.inventoryBox}>
@@ -62,6 +59,18 @@ export default function Page() {
         </a>
         <button onClick={handleResetGroups} className={styles.button}>
           全部重置
+        </button>
+        <button
+          onClick={() => setShowAbilityLevel((prev) => !prev)}
+          className={styles.button}
+        >
+          {showAbilityLevel ? '隐藏等级' : '显示等级'}
+        </button>
+        <button
+          onClick={() => setShowContributor((prev) => !prev)}
+          className={styles.button}
+        >
+          {showContributor ? '显示已有技能' : '显示缺失技能'}
         </button>
       </div>
 
@@ -79,7 +88,12 @@ export default function Page() {
 
       <h2 className={styles.subheading}>技能表</h2>
       <div className={styles.groups}>
-        <GroupAbilitySummary groups={groups} setGroups={setGroups} />
+        <GroupAbilitySummary
+          groups={groups}
+          setGroups={setGroups}
+          showLevel={showAbilityLevel}
+          showContributor={showContributor}
+        />
       </div>
     </div>
   );
