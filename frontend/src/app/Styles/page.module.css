@@ -148,3 +148,25 @@
   color: white;
 }
 
+.coverageRow {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.coveragePillCovered {
+  background-color: #04a03d; /* green */
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.coveragePillMissing {
+  background-color: #e5e7eb; /* light gray */
+  color: #333;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
