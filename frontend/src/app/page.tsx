@@ -21,6 +21,10 @@ export default function Page() {
   const [showAbilityLevel, setShowAbilityLevel] = useState(true);
   const [showContributor, setShowContributor] = useState(false);
 
+  const [showLevels, setShowLevels] = useState(false);
+  const [summaryOnTop, setSummaryOnTop] = useState(true);
+  const [showContributors, setShowContributors] = useState(false);
+
   useEffect(() => {
     Promise.all([api.get('/characters'), api.get('/groups')])
       .then(([charRes, groupRes]) => {
@@ -61,16 +65,24 @@ export default function Page() {
           全部重置
         </button>
         <button
-          onClick={() => setShowAbilityLevel((prev) => !prev)}
-          className={styles.button}
+
+          onClick={() => setShowLevels((v) => !v)}
+          className={`${styles.button} ${styles.buttonGreen}`}
         >
-          {showAbilityLevel ? '隐藏等级' : '显示等级'}
+          {showLevels ? '隐藏等级' : '显示等级'}
         </button>
         <button
-          onClick={() => setShowContributor((prev) => !prev)}
-          className={styles.button}
+          onClick={() => setSummaryOnTop((v) => !v)}
+          className={`${styles.button} ${styles.buttonYellow}`}
         >
-          {showContributor ? '显示已有技能' : '显示缺失技能'}
+          {summaryOnTop ? '把技能表移到底部' : '把技能表移到顶部'}
+        </button>
+        <button
+          onClick={() => setShowContributors((v) => !v)}
+          className={`${styles.button} ${styles.buttonBlue}`}
+        >
+          {showContributors ? '隐藏贡献' : '显示贡献'}
+
         </button>
       </div>
 
@@ -82,19 +94,40 @@ export default function Page() {
         />
       </div>
 
+      {summaryOnTop && (
+        <>
+          <h2 className={styles.subheading}>技能表</h2>
+          <div className={styles.groups}>
+            <GroupAbilitySummary
+              groups={groups}
+              setGroups={setGroups}
+              allCharacters={allCharacters}
+              showLevels={showLevels}
+              showContributors={showContributors}
+            />
+          </div>
+        </>
+      )}
+
       <div className={styles.groups}>
         <GroupCharts groups={groups} setGroups={setGroups} />
       </div>
 
-      <h2 className={styles.subheading}>技能表</h2>
-      <div className={styles.groups}>
-        <GroupAbilitySummary
-          groups={groups}
-          setGroups={setGroups}
-          showLevel={showAbilityLevel}
-          showContributor={showContributor}
-        />
-      </div>
+      {!summaryOnTop && (
+        <>
+          <h2 className={styles.subheading}>技能表</h2>
+          <div className={styles.groups}>
+            <GroupAbilitySummary
+              groups={groups}
+              setGroups={setGroups}
+              allCharacters={allCharacters}
+              showLevels={showLevels}
+              showContributors={showContributors}
+            />
+          </div>
+        </>
+      )}
+
     </div>
   );
 }
