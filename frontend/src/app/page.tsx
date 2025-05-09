@@ -18,25 +18,22 @@ export default function Page() {
   const [groups, setGroups] = useState<Character[][]>(
     Array.from({ length: 8 }, () => [])
   );
+  const [showAbilityLevel, setShowAbilityLevel] = useState(true);
+  const [showContributor, setShowContributor] = useState(false);
 
   const [showLevels, setShowLevels] = useState(false);
   const [summaryOnTop, setSummaryOnTop] = useState(true);
   const [showContributors, setShowContributors] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      api.get('/characters'),
-      api.get('/groups'),
-    ])
+    Promise.all([api.get('/characters'), api.get('/groups')])
       .then(([charRes, groupRes]) => {
         const all = charRes.data as Character[];
         const map = new Map(all.map((c) => [c._id, c]));
 
         const sortedGroups = (groupRes.data as GroupDoc[])
           .sort((a, b) => a.groupIndex - b.groupIndex)
-          .map((g) =>
-            g.characters.map((c) => map.get(c._id) || c)
-          );
+          .map((g) => g.characters.map((c) => map.get(c._id) || c));
 
         setAllCharacters(all);
         setGroups(sortedGroups);
@@ -58,7 +55,7 @@ export default function Page() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>百战排表</h1>
+      <h1 className={styles.title}>百战排表 I7</h1>
 
       <div className={styles.buttonRow}>
         <a href="/inventory" className={styles.inventoryBox}>
@@ -68,6 +65,7 @@ export default function Page() {
           全部重置
         </button>
         <button
+
           onClick={() => setShowLevels((v) => !v)}
           className={`${styles.button} ${styles.buttonGreen}`}
         >
@@ -84,6 +82,7 @@ export default function Page() {
           className={`${styles.button} ${styles.buttonBlue}`}
         >
           {showContributors ? '隐藏贡献' : '显示贡献'}
+
         </button>
       </div>
 
@@ -128,6 +127,7 @@ export default function Page() {
           </div>
         </>
       )}
+
     </div>
   );
 }

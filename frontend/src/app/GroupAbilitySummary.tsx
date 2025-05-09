@@ -9,12 +9,14 @@ import api from './utils/api';
 interface Props {
   groups: Character[][];
   setGroups: (groups: Character[][]) => void;
+
   allCharacters: Character[];
   showLevels: boolean;
   showContributors: boolean;
 }
 
 const CORE_ABILITIES = ['钱', '斗', '天', '黑', '引'];
+
 
 const simplifyAbilityName = (name: string): string => {
   if (name.startsWith('花') || name.startsWith('钱')) return '钱';
@@ -56,6 +58,7 @@ const getColorClass = (role: string): string => {
   }
 };
 
+
 export default function GroupAbilitySummary({
   groups,
   setGroups,
@@ -71,6 +74,8 @@ export default function GroupAbilitySummary({
   }, []);
 
   const handleAddToGroup = async (groupIndex: number, char: Character) => {
+
+
     const updated = groups.map((g) => g.filter((c) => c._id !== char._id));
     updated[groupIndex] = [...updated[groupIndex], char];
     setGroups(updated);
@@ -120,6 +125,7 @@ export default function GroupAbilitySummary({
   return (
     <div className={styles.groups}>
       {groups.map((group, index) => {
+
         console.log(`📂 Rendering group ${index + 1} with ${group.length} characters`);
         return (
           <div key={index} className={styles.groupBox}>
@@ -154,6 +160,7 @@ export default function GroupAbilitySummary({
                   >
                     {renderAbilityText(char)}
                   </div>
+
                 ))}
               </div>
             )}

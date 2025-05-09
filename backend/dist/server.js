@@ -8,11 +8,13 @@ const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const cors_1 = __importDefault(require("cors"));
 const characterRoutes_1 = __importDefault(require("./routes/characterRoutes"));
+const groupRoutes_1 = __importDefault(require("./routes/groupRoutes"));
 const app = (0, express_1.default)(); // ✅ declare app first
 const PORT = 5000; // ✅ use a different port than frontend
 // ✅ Middlewares
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+app.use('/api/groups', groupRoutes_1.default);
 // ✅ MongoDB connection
 mongoose_1.default.connect('mongodb+srv://zhibinren79:xIF0wEyWZ55rEvS3@cluster0.sedw7v9.mongodb.net/baizhan?retryWrites=true&w=majority&appName=Cluster0')
     .then(() => console.log('✅ MongoDB connected'))
