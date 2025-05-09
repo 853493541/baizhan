@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import api from './utils/api';
-import styles from './Styles/page.module.css';
-import AvailableCharacters from './AvailableCharacters';
-import GroupCharts from './GroupCharts';
-import GroupAbilitySummary from './GroupAbilitySummary';
+import styles from './page.module.css';
+import AvailableCharacters from './components/AvailableCharacters';
+import GroupCharts from './components/GroupCharts';
+import GroupAbilitySummary from './components/GroupAbilitySummary';
 import type { Character } from './types';
 
 type GroupDoc = {

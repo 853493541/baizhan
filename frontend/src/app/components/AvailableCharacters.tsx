@@ -1,8 +1,8 @@
 'use client';
 
-import styles from './Styles/page.module.css';
+import styles from '../page.module.css';
 
-import type { Character } from './types';
+import type { Character } from '../types';
 
 interface Props {
   characters: Character[];

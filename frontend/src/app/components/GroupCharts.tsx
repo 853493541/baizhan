@@ -1,9 +1,8 @@
 'use client';
-
-import styles from './Styles/page.module.css';
-import api from './utils/api';
+import styles from '../page.module.css';
+import api from '../utils/api';
 import { useCallback } from 'react';
-import type { Character } from './types';
+import type { Character } from '../types';
 
 
 interface Props {

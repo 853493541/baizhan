@@ -1,0 +1,33 @@
+.characterCard {
+  display: inline-block;
+  width: 100%;
+  max-width: 160px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* Color roles */
+.goldBox {
+  background-color: #ffeeaa;
+  color: #a55b00;
+}
+
+.pinkBox {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+}
+
+.greenBox {
+  background-color: #c8e6c9;
+  color: #1b5e20;
+}
+
+.defaultBox {
+  background-color: #e0e0e0;
+  color: #333;
+}
