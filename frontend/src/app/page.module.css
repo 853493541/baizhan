@@ -200,3 +200,74 @@
 .suggestButton:hover {
   background-color: #2563eb;
 }
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modalContent {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  max-height: 80vh;
+  width: 500px;
+  overflow-y: auto;
+}
+
+.suggestionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.suggestionCard {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+.suggestionCard:hover {
+  background-color: #f3f4f6;
+}
+
+.closeButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.suggestionPopup {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  z-index: 10;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 280px;
+  margin-top: 0.5rem;
+}
+
+.suggestionItem {
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.suggestionItem:hover {
+  background-color: #f3f4f6;
+}

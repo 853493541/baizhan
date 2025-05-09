@@ -41,28 +41,34 @@ export default function GroupAbilityBox({
       ))}
 
       {showContributors && (
-        <>
-         <div className={styles.bottomRow}>
-  <button className={styles.suggestButton} onClick={onSuggestClick}>
-    ＋
-  </button>
+        <div className={styles.bottomRow}>
+          <div style={{ position: 'relative' }}>
+            <button className={styles.suggestButton} onClick={onSuggestClick}>
+              ＋
+            </button>
 
-  {showContributors && <Checkboxes group={group} />}
-</div>
-        </>
-      )}
+            {suggestingIndex === index && (
+              <div className={styles.suggestionPopup}>
+                <div className={styles.suggestionList}>
+                  {allCharacters.map((char) => (
+                    <div
+                      key={char._id}
+                      className={styles.suggestionItem}
+                      onClick={() => onSelectSuggestion(char)}
+                    >
+                      <CharacterPill
+                        char={char}
+                        showLevels={showLevels}
+                        showContributors={showContributors}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
-      {suggestingIndex === index && (
-        <div className={styles.suggestionBox}>
-          {allCharacters.map((char) => (
-            <CharacterPill
-              key={char._id}
-              char={char}
-              showLevels={showLevels}
-              showContributors={showContributors}
-              onClick={() => onSelectSuggestion(char)}
-            />
-          ))}
+          <Checkboxes group={group} />
         </div>
       )}
     </div>
