@@ -2,7 +2,13 @@
 .container {
   padding: 2rem;
 }
-
+.characterText {
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  text-align: center;
+}
 .title {
   font-size: 2rem;
   font-weight: bold;
@@ -265,6 +271,38 @@
 .suggestionItem {
   padding: 0.4rem 0.5rem;
   border-radius: 0.25rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.suggestionItem:hover {
+  background-color: #f3f4f6;
+}
+
+
+.suggestionPopup {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  z-index: 10;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 280px;
+  margin-top: 0.5rem;
+  right: 0;
+}
+
+.suggestionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suggestionItem {
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
   transition: background 0.2s;
   cursor: pointer;
 }
