@@ -23,7 +23,7 @@ export default function Page() {
 
   const [showLevels, setShowLevels] = useState(false);
   const [summaryOnTop, setSummaryOnTop] = useState(true);
-  const [showContributors, setShowContributors] = useState(false);
+  const [showContributors, setShowContributors] = useState(true);
 
   useEffect(() => {
     Promise.all([api.get('/characters'), api.get('/groups')])

@@ -30,9 +30,6 @@ export default function GroupAbilityBox({
   return (
     <div className={styles.groupBox}>
       <h3>组 {index + 1}</h3>
-      <button className={styles.suggestButton} onClick={onSuggestClick}>
-        建议角色
-      </button>
 
       {group.map((char) => (
         <CharacterPill
@@ -43,7 +40,17 @@ export default function GroupAbilityBox({
         />
       ))}
 
-      {showContributors && <Checkboxes group={group} />}
+      {showContributors && (
+        <>
+         <div className={styles.bottomRow}>
+  <button className={styles.suggestButton} onClick={onSuggestClick}>
+    ＋
+  </button>
+
+  {showContributors && <Checkboxes group={group} />}
+</div>
+        </>
+      )}
 
       {suggestingIndex === index && (
         <div className={styles.suggestionBox}>
