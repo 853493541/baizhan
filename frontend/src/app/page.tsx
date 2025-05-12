@@ -23,7 +23,7 @@ export default function Page() {
   const [showContributor, setShowContributor] = useState(false);
 
   const [showLevels, setShowLevels] = useState(false);
-  const [summaryOnTop, setSummaryOnTop] = useState(true);
+  const [summaryOnTop, setSummaryOnTop] = useState(false);
   const [showContributors, setShowContributors] = useState(true);
   const [showNames, setShowNames] = useState(false);
 

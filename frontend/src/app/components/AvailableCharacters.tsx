@@ -2,6 +2,7 @@
 
 import styles from '../page.module.css';
 import type { Character } from '../types';
+import { useState } from 'react';
 
 interface Props {
   characters: Character[];
@@ -38,6 +39,8 @@ const getContributors = (char: Character): string[] => {
 };
 
 export default function AvailableCharacters({ characters, groups, setGroups, showNames }: Props) {
+  const [filter, setFilter] = useState<string>('ALL');
+
   const getColorClass = (role: string): string => {
     switch (role.toLowerCase()) {
       case 'healer': return styles.pinkBox;
@@ -58,32 +61,51 @@ export default function AvailableCharacters({ characters, groups, setGroups, sho
     setGroups(updated);
   };
 
+  const filteredCharacters = characters.filter((char) => {
+    if (filter === 'ALL') return true;
+    return getContributors(char).includes(filter);
+  });
+
   return (
-    <div
-      className={styles.characterList}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
-    >
-      {characters.map((char) => {
-        const display = showNames
-          ? (char.comboBurst ? `@${char.name}` : char.name)
-          : getContributors(char).join(' ') || '无';
-
-        console.debug('[DEBUG] Rendering char:', char.name, '| showNames:', showNames, '| display:', display);
-
-        return (
-          <div
-            key={char._id}
-            className={`${styles.characterCard} ${getColorClass(char.role)}`}
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData('text/plain', JSON.stringify(char));
-            }}
+    <>
+      <div className={styles.buttonRow}>
+        {['ALL', ...CORE_ABILITIES].map((label) => (
+          <button
+            key={label}
+            onClick={() => setFilter(label)}
+            className={`${styles.button} ${filter === label ? styles.buttonGreen : ''}`}
           >
-            {display}
-          </div>
-        );
-      })}
-    </div>
+            {label === 'ALL' ? '全部' : label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        className={styles.characterList}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
+        {filteredCharacters.map((char) => {
+          const display = showNames
+            ? (char.comboBurst ? `@${char.name}` : char.name)
+            : getContributors(char).join(' ') || '无';
+
+          console.debug('[DEBUG] Rendering char:', char.name, '| showNames:', showNames, '| display:', display);
+
+          return (
+            <div
+              key={char._id}
+              className={`${styles.characterCard} ${getColorClass(char.role)}`}
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify(char));
+              }}
+            >
+              {display}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

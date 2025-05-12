@@ -116,7 +116,7 @@ export default function GroupCharts({ groups, setGroups, showNames }: Props) {
             {group.map((char) => {
               const text = showNames
                 ? (char.comboBurst ? `@${char.name}` : char.name)
-                : getContributors(char).join(' ') || '无';
+                : getContributors(char).join(' ') || '（无）';
 
               return (
                 <div

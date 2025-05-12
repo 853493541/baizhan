@@ -55,13 +55,13 @@ export default function CharacterPill({
   const text = showContributors
     ? (() => {
         const missing = getContributors(char);
-        return missing.length > 0 ? missing.join(' ') : '无';
+        return missing.length > 0 ? missing.join(' ') : '（无）';
       })()
     : Object.entries(core)
         .map(([key, level]) =>
           showLevels ? `${level}${simplifyAbilityName(key)}` : simplifyAbilityName(key)
         )
-        .join(' ') || '无';
+        .join(' ') || '（无）';
 
   return (
     <div
