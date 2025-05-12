@@ -17,6 +17,17 @@ interface Props {
   onSelectSuggestion: (char: Character) => void;
 }
 
+const CORE_ABILITIES = ['钱', '斗', '天', '黑', '引'];
+
+function normalizeAbility(name: string): string {
+  if (name.startsWith('花') || name.startsWith('钱')) return '钱';
+  if (name.startsWith('斗')) return '斗';
+  if (name.startsWith('天')) return '天';
+  if (name.startsWith('黑')) return '黑';
+  if (name.startsWith('引')) return '引';
+  return name;
+}
+
 export default function GroupAbilityBox({
   index,
   group,
@@ -27,7 +38,7 @@ export default function GroupAbilityBox({
   onSuggestClick,
   onSelectSuggestion,
 }: Props) {
-  const [showContribNames, setShowContribNames] = useState(false);
+  const [showNames, setShowNames] = useState(true);
 
   const getFilteredCharacters = (): Character[] => {
     const accountsInGroup = new Set(group.map((c) => c.account));
@@ -49,15 +60,14 @@ export default function GroupAbilityBox({
     }
   };
 
-  const getContributors = (char: Character): string[] => {
-    const CORE_ABILITIES = ['钱', '斗', '天', '黑', '引'];
+  const getMissingAbilities = (char: Character): string[] => {
     const owned = [
       ...Object.entries(char.abilities?.core || {})
         .filter(([_, lvl]) => lvl >= 9)
-        .map(([k]) => (k.startsWith('花') || k.startsWith('钱') ? '钱' : k)),
+        .map(([k]) => normalizeAbility(k)),
       ...Object.entries(char.abilities?.healing || {})
         .filter(([_, lvl]) => lvl >= 9)
-        .map(([k]) => (k.startsWith('花') || k.startsWith('钱') ? '钱' : k)),
+        .map(([k]) => normalizeAbility(k)),
     ];
     const ownedSet = new Set(owned);
     return CORE_ABILITIES.filter((ab) => !ownedSet.has(ab));
@@ -95,30 +105,24 @@ export default function GroupAbilityBox({
               <div className={styles.suggestionPopup}>
                 <button
                   className={styles.toggleButton}
-                  onClick={() => setShowContribNames((prev) => !prev)}
+                  onClick={() => setShowNames((prev) => !prev)}
                 >
-                  {showContribNames ? '显示角色名字' : '显示贡献技能'}
+                  {showNames ? '显示贡献技能' : '显示角色名字'}
                 </button>
                 <div className={styles.suggestionList}>
                   {getFilteredCharacters().map((char) => {
                     const roleClass = getRoleBoxClass(char.role);
                     const fullClass = `${styles.characterText} ${roleClass}`;
-                    console.log('Suggesting:', char.name, '| Role:', char.role, '| Class:', fullClass);
+                    const text = showNames
+                      ? char.name
+                      : getMissingAbilities(char).join(' ');
                     return (
                       <div
                         key={char._id}
                         className={styles.suggestionItem}
                         onClick={() => onSelectSuggestion(char)}
                       >
-                        {showContribNames ? (
-                          <div className={fullClass}>
-                            {getContributors(char).join(' ')}
-                          </div>
-                        ) : (
-                          <div className={fullClass}>
-                            {char.name}
-                          </div>
-                        )}
+                        <div className={fullClass}>{text}</div>
                       </div>
                     );
                   })}
