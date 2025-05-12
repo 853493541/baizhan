@@ -23,16 +23,19 @@ const simplifyAbilityName = (name: string): string => {
 };
 
 const getContributors = (char: Character): string[] => {
-  const owned = [
-    ...Object.entries(char.abilities?.core || {})
-      .filter(([_, lvl]) => lvl >= 9)
-      .map(([k]) => simplifyAbilityName(k)),
-    ...Object.entries(char.abilities?.healing || {})
-      .filter(([_, lvl]) => lvl >= 9)
-      .map(([k]) => simplifyAbilityName(k)),
-  ];
+  const coreEntries = Object.entries(char.abilities?.core || {}).filter(
+    ([_, level]) => level >= 9
+  );
+  const healingEntries = Object.entries(char.abilities?.healing || {}).filter(
+    ([_, level]) => level >= 9
+  );
+
+  const owned = [...coreEntries, ...healingEntries].map(([k]) =>
+    simplifyAbilityName(k)
+  );
+
   const ownedSet = new Set(owned);
-  return CORE_ABILITIES.filter((a) => !ownedSet.has(a));
+  return CORE_ABILITIES.filter((ab) => !ownedSet.has(ab));
 };
 
 export default function GroupCharts({ groups, setGroups, showNames }: Props) {
@@ -77,7 +80,7 @@ export default function GroupCharts({ groups, setGroups, showNames }: Props) {
 
     for (const [ability, count] of Object.entries(abilityCounts)) {
       if (count > 2) {
-        warnings.push(`⚠️ 冲突技能: ${ability}`);
+        warnings.push(`⚠️ 冲突技能: ${simplifyAbilityName(ability)}`);
       }
     }
 
@@ -105,32 +108,37 @@ export default function GroupCharts({ groups, setGroups, showNames }: Props) {
               );
 
               updated[index] = [...updated[index], char];
+
               autoSaveGroups(updated);
             }}
           >
             <h3>组 {index + 1}</h3>
-            {group.map((char) => (
-              <div
-                key={char._id}
-                className={`${styles.characterCard} ${getColorClass(char.role)}`}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('text/plain', JSON.stringify(char));
-                }}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  const updated = groups.map((g, gi) =>
-                    gi === index ? g.filter((c) => c._id !== char._id) : g
-                  );
-                  autoSaveGroups(updated);
-                }}
-                title="右键取消"
-              >
-                {showNames
-                  ? (char.comboBurst ? `@${char.name}` : char.name)
-                  : getContributors(char).join(' ')}
-              </div>
-            ))}
+            {group.map((char) => {
+              const text = showNames
+                ? (char.comboBurst ? `@${char.name}` : char.name)
+                : getContributors(char).join(' ') || '无';
+
+              return (
+                <div
+                  key={char._id}
+                  className={`${styles.characterCard} ${getColorClass(char.role)}`}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify(char));
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    const updated = groups.map((g, gi) =>
+                      gi === index ? g.filter((c) => c._id !== char._id) : g
+                    );
+                    autoSaveGroups(updated);
+                  }}
+                  title="右键取消"
+                >
+                  {text}
+                </div>
+              );
+            })}
 
             {warnings.length > 0 && (
               <div className={styles.warningBox}>
