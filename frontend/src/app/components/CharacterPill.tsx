@@ -13,6 +13,22 @@ const simplifyAbilityName = (name: string): string => {
   return name[0];
 };
 
+const CORE_ABILITIES = ['钱', '斗', '天', '黑', '引'];
+
+const getContributors = (char: Character): string[] => {
+  const core = Object.entries(char.abilities?.core || {}).filter(
+    ([_, lvl]) => lvl >= 9
+  );
+  const healing = Object.entries(char.abilities?.healing || {}).filter(
+    ([_, lvl]) => lvl >= 9
+  );
+
+  const owned = [...core, ...healing].map(([k]) => simplifyAbilityName(k));
+  const ownedSet = new Set(owned);
+
+  return CORE_ABILITIES.filter((ab) => !ownedSet.has(ab));
+};
+
 interface Props {
   char: Character;
   showLevels: boolean;
@@ -26,23 +42,6 @@ export default function CharacterPill({
   showContributors,
   onClick,
 }: Props) {
-  const core = char.abilities?.core || {};
-  const owned = Object.entries(core)
-    .filter(([, level]) => level >= 9)
-    .map(([key]) => simplifyAbilityName(key));
-  const ownedSet = new Set(owned);
-  const missing = ['钱', '斗', '天', '黑', '引'].filter((a) => !ownedSet.has(a));
-
-  const text = showContributors
-    ? missing.length > 0 ? missing.join(' ') : '(无缺)'
-    : Object.entries(core)
-        .map(([key, level]) =>
-          showLevels
-            ? `${level}${simplifyAbilityName(key)}`
-            : simplifyAbilityName(key)
-        )
-        .join(' ') || '(none)';
-
   const getColorClass = (role: string): string => {
     switch (role.toLowerCase()) {
       case 'healer': return styles.pinkBox;
@@ -51,6 +50,18 @@ export default function CharacterPill({
       default: return styles.defaultBox;
     }
   };
+
+  const core = char.abilities?.core || {};
+  const text = showContributors
+    ? (() => {
+        const missing = getContributors(char);
+        return missing.length > 0 ? missing.join(' ') : '无';
+      })()
+    : Object.entries(core)
+        .map(([key, level]) =>
+          showLevels ? `${level}${simplifyAbilityName(key)}` : simplifyAbilityName(key)
+        )
+        .join(' ') || '无';
 
   return (
     <div

@@ -25,10 +25,15 @@ export default function Page() {
   const [showLevels, setShowLevels] = useState(false);
   const [summaryOnTop, setSummaryOnTop] = useState(true);
   const [showContributors, setShowContributors] = useState(true);
+  const [showNames, setShowNames] = useState(false);
 
   useEffect(() => {
+    console.log('[DEBUG] Fetching characters and groups');
     Promise.all([api.get('/characters'), api.get('/groups')])
       .then(([charRes, groupRes]) => {
+        console.log('[DEBUG] Characters response:', charRes.data);
+        console.log('[DEBUG] Groups response:', groupRes.data);
+
         const all = charRes.data as Character[];
         const map = new Map(all.map((c) => [c._id, c]));
 
@@ -39,7 +44,7 @@ export default function Page() {
         setAllCharacters(all);
         setGroups(sortedGroups);
       })
-      .catch((err) => console.error('Failed to fetch data:', err));
+      .catch((err) => console.error('[DEBUG] Failed to fetch data:', err));
   }, []);
 
   const assignedIds = new Set(groups.flat().map((c) => c._id));
@@ -47,10 +52,11 @@ export default function Page() {
 
   const handleResetGroups = async () => {
     try {
+      console.log('[DEBUG] Resetting groups');
       await api.delete('/groups');
       setGroups(Array.from({ length: 8 }, () => []));
     } catch (err) {
-      console.error('Reset failed:', err);
+      console.error('[DEBUG] Reset failed:', err);
     }
   };
 
@@ -66,7 +72,6 @@ export default function Page() {
           全部重置
         </button>
         <button
-
           onClick={() => setShowLevels((v) => !v)}
           className={`${styles.button} ${styles.buttonGreen}`}
         >
@@ -83,7 +88,15 @@ export default function Page() {
           className={`${styles.button} ${styles.buttonBlue}`}
         >
           {showContributors ? '隐藏贡献' : '显示贡献'}
-
+        </button>
+        <button
+          onClick={() => {
+            console.log('[DEBUG] showNames toggled to:', !showNames);
+            setShowNames((v) => !v);
+          }}
+          className={styles.button}
+        >
+          {showNames ? '显示技能' : '显示名字'}
         </button>
       </div>
 
@@ -92,6 +105,7 @@ export default function Page() {
           characters={ungrouped}
           groups={groups}
           setGroups={setGroups}
+          showNames={showNames}
         />
       </div>
 
@@ -111,7 +125,11 @@ export default function Page() {
       )}
 
       <div className={styles.groups}>
-        <GroupCharts groups={groups} setGroups={setGroups} />
+        <GroupCharts
+          groups={groups}
+          setGroups={setGroups}
+          showNames={showNames}
+        />
       </div>
 
       {!summaryOnTop && (
@@ -128,7 +146,6 @@ export default function Page() {
           </div>
         </>
       )}
-
     </div>
   );
 }

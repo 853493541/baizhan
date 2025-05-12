@@ -1,16 +1,41 @@
 'use client';
+
 import styles from '../page.module.css';
 import api from '../utils/api';
 import { useCallback } from 'react';
 import type { Character } from '../types';
 
-
 interface Props {
   groups: Character[][];
   setGroups: (groups: Character[][]) => void;
+  showNames: boolean;
 }
 
-export default function GroupCharts({ groups, setGroups }: Props) {
+const CORE_ABILITIES = ['钱', '斗', '天', '黑', '引'];
+
+const simplifyAbilityName = (name: string): string => {
+  if (name.startsWith('花') || name.startsWith('钱')) return '钱';
+  if (name.startsWith('斗')) return '斗';
+  if (name.startsWith('天')) return '天';
+  if (name.startsWith('黑')) return '黑';
+  if (name.startsWith('引')) return '引';
+  return name[0];
+};
+
+const getContributors = (char: Character): string[] => {
+  const owned = [
+    ...Object.entries(char.abilities?.core || {})
+      .filter(([_, lvl]) => lvl >= 9)
+      .map(([k]) => simplifyAbilityName(k)),
+    ...Object.entries(char.abilities?.healing || {})
+      .filter(([_, lvl]) => lvl >= 9)
+      .map(([k]) => simplifyAbilityName(k)),
+  ];
+  const ownedSet = new Set(owned);
+  return CORE_ABILITIES.filter((a) => !ownedSet.has(a));
+};
+
+export default function GroupCharts({ groups, setGroups, showNames }: Props) {
   const autoSaveGroups = useCallback((updated: Character[][]) => {
     setGroups(updated);
     api.post('/groups', updated).catch((err) =>
@@ -34,14 +59,12 @@ export default function GroupCharts({ groups, setGroups }: Props) {
     let hasHealer = false;
 
     for (const char of group) {
-      // Rule 1: No duplicate accounts
       if (accountSet.has(char.account)) {
         warnings.push('⚠️ 同账号角色');
       } else {
         accountSet.add(char.account);
       }
 
-      // Rule 2: Count only core abilities with level >= 9
       const core = char.abilities?.core ?? {};
       for (const [ability, level] of Object.entries(core)) {
         if (level >= 9) {
@@ -49,7 +72,6 @@ export default function GroupCharts({ groups, setGroups }: Props) {
         }
       }
 
-      // Rule 3: Must include at least one healer
       if (char.role.toLowerCase() === 'healer') hasHealer = true;
     }
 
@@ -83,7 +105,6 @@ export default function GroupCharts({ groups, setGroups }: Props) {
               );
 
               updated[index] = [...updated[index], char];
-
               autoSaveGroups(updated);
             }}
           >
@@ -105,7 +126,9 @@ export default function GroupCharts({ groups, setGroups }: Props) {
                 }}
                 title="右键取消"
               >
-                {char.comboBurst ? `@${char.name}` : char.name}
+                {showNames
+                  ? (char.comboBurst ? `@${char.name}` : char.name)
+                  : getContributors(char).join(' ')}
               </div>
             ))}
 
