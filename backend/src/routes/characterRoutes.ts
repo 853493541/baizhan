@@ -1,7 +1,9 @@
 import express from 'express';
-import { getCharacters } from '../controllers/characterController';
+import { getFullCharacters, getCoreCharacters } from '../controllers/characterController';
+
 const router = express.Router();
 
-router.get('/', getCharacters);
+router.get('/', getFullCharacters);        // GET /api/characters
+router.get('/core', getCoreCharacters);    // GET /api/characters/core
 
 export default router;
