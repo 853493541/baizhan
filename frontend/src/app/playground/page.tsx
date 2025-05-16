@@ -206,6 +206,35 @@ export default function Playground() {
         )}
       </div>
 
+      <div className={styles.resetRow}>
+  <button
+    className={styles.resetButton}
+    onClick={() => {
+      if (!currentGroupId) return;
+      const confirmReset = confirm("⚠️ 是否确认清空所有小队？此操作无法撤销！");
+      if (!confirmReset) return;
+
+      const clearedGroups = Array.from({ length: 8 }, () => []);
+      setGroups(clearedGroups);
+      setAllCharacters(prev => {
+        const existing = [...prev];
+        groupList
+          .find(g => g._id === currentGroupId)
+          ?.groups.flat()
+          .forEach(c => existing.push(c));
+        return existing;
+      });
+
+      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: clearedGroups })
+        .then(() => console.log("🧼 所有小队已重置"))
+        .catch(err => console.error("❌ 重置失败:", err));
+    }}
+  >
+    ⚠️ 重置所有小队
+  </button>
+</div>
+
+
       <h2>可选角色</h2>
       <div className={styles.availableGrid}>
         {allCharacters.map((char, i) => (

@@ -126,3 +126,23 @@
   content: '⚠️';
   font-size: 1rem;
 }
+
+
+.resetRow {
+  margin: 1rem 0;
+}
+
+.resetButton {
+  background-color: #f87171;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.resetButton:hover {
+  background-color: #dc2626;
+}
