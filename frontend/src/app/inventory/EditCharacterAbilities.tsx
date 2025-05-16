@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import styles from './Styles/EditCharacterAbilities.module.css';
+import axios from 'axios';
 
 export type Character = {
   _id?: string;
@@ -18,18 +19,30 @@ export type Character = {
 
 interface Props {
   character: Character;
-  onSave: (updated: Character) => void;
   onCancel: () => void;
 }
 
-export default function EditCharacterAbilities({
-  character,
-  onSave,
-  onCancel,
-}: Props) {
+const api = process.env.NEXT_PUBLIC_API_BASE;
+
+export default function EditCharacterAbilities({ character, onCancel }: Props) {
   const [editable, setEditable] = useState<Character>({ ...character });
-  //const [newAbilityName, setNewAbilityName] = useState('');
-  //const [newAbilityLevel, setNewAbilityLevel] = useState(0);
+  const [status, setStatus] = useState<string | null>(null);
+
+  const showStatus = (skill: string, level: number) => {
+    const message = `✅ ${editable.name} 的 “${skill}” 技能已更新为等级 ${level}`;
+    setStatus(message);
+    setTimeout(() => setStatus(null), 3000);
+  };
+
+  const saveToBackend = async (updated: Character, skill: string, level: number) => {
+    if (!updated._id) return;
+    try {
+      await axios.put(`${api}/characters/${updated._id}`, updated);
+      showStatus(skill, level);
+    } catch (err) {
+      console.error('❌ Failed to auto-save:', err);
+    }
+  };
 
   const getLevel = (name: string): number =>
     editable.abilities.core[name] ?? editable.abilities.healing[name] ?? 0;
@@ -43,47 +56,54 @@ export default function EditCharacterAbilities({
   const updateAbilityLevel = (name: string, level: number) => {
     if (level < 0) return;
     const target = findTargetGroup(name);
-    setEditable((prev) => ({
-      ...prev,
+
+    const updated = {
+      ...editable,
       abilities: {
-        ...prev.abilities,
+        ...editable.abilities,
         [target]: {
-          ...prev.abilities[target],
+          ...editable.abilities[target],
           [name]: level,
         },
       },
-    }));
+    };
+
+    setEditable(updated);
+    saveToBackend(updated, name, level); // ✅ Auto-save with message
   };
 
-  const increaseLevel = (name: string) =>
-    updateAbilityLevel(name, getLevel(name) + 1);
-
-  const decreaseLevel = (name: string) =>
-    updateAbilityLevel(name, Math.max(0, getLevel(name) - 1));
+  const increaseLevel = (name: string) => updateAbilityLevel(name, getLevel(name) + 1);
+  const decreaseLevel = (name: string) => updateAbilityLevel(name, Math.max(0, getLevel(name) - 1));
 
   const deleteAbility = (name: string) => {
     const target = findTargetGroup(name);
     const copy = { ...editable.abilities[target] };
     delete copy[name];
-    setEditable((prev) => ({
-      ...prev,
+    const updated = {
+      ...editable,
       abilities: {
-        ...prev.abilities,
+        ...editable.abilities,
         [target]: copy,
       },
-    }));
+    };
+    setEditable(updated);
+    saveToBackend(updated, name, 0); // ✅ Auto-save deletion
   };
 
   const toggleComboBurst = () => {
-    setEditable((prev) => ({
-      ...prev,
-      comboBurst: !prev.comboBurst,
-    }));
+    const updated = {
+      ...editable,
+      comboBurst: !editable.comboBurst,
+    };
+    setEditable(updated);
+    saveToBackend(updated, '真元', updated.comboBurst ? 1 : 0);
   };
 
   return (
     <div className={styles.editorContainer}>
       <h2 className={styles.title}>编辑技能：{editable.name}</h2>
+
+      {status && <div className={styles.statusBar}>{status}</div>}
 
       <div className={styles.comboBurstRow}>
         <span>真元：</span>
@@ -121,35 +141,8 @@ export default function EditCharacterAbilities({
         ))}
       </ul>
 
-      {/*
-      <div className={styles.addRow}>
-        <input
-          type="text"
-          placeholder="技能名"
-          className={styles.addInput}
-          value={newAbilityName}
-          onChange={(e) => setNewAbilityName(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="等级"
-          className={styles.addInput}
-          value={newAbilityLevel}
-          onChange={(e) => setNewAbilityLevel(Number(e.target.value))}
-        />
-        <button className={styles.addButton} onClick={addAbility}>
-          ➕ 添加技能（默认加在核心技能）
-        </button>
-      </div>
-      */}
-
       <div className={styles.buttonRow}>
-        <button className={styles.saveButton} onClick={() => onSave(editable)}>
-          💾 保存
-        </button>
-        <button className={styles.cancelButton} onClick={onCancel}>
-          取消
-        </button>
+        <button className={styles.cancelButton} onClick={onCancel}>取消</button>
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ app.use('/api/active-scheduling', activeSchedulingRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/current-schedule', currentScheduleRoutes);
 app.use('/api/setCurrentSchedule', setCurrentSchedule);
+app.use('/api/characters', characterRoutes); 
 
 
 export default app;

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { getDb } from '../utils/db';
+import { ObjectId } from 'mongodb'; 
 
 const CORE_LIST = ['钱', '斗', '天', '黑', '引'];
 const ABILITY_ALIASES: Record<string, string> = {
@@ -117,5 +118,37 @@ export async function getCharacterSummary(req: Request, res: Response) {
   } catch (err) {
     console.error('Failed to fetch summary:', err);
     res.status(500).json({ error: 'Failed to fetch summary' });
+  }
+}
+
+export async function updateCharacter(req: Request, res: Response) {
+  console.log('🟡 PUT /api/characters/:id hit with ID =', req.params.id);
+
+  try {
+    const db = await getDb();
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      console.log('❌ Invalid ObjectId:', id);
+      return res.status(400).json({ error: 'Invalid character ID' });
+    }
+
+    const { _id, ...safeUpdate } = req.body;
+
+    const result = await db.collection('characters').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: safeUpdate }
+    );
+
+if (result.matchedCount === 0) {
+      console.log('⚠️ Character not found or unchanged:', id);
+      return res.status(404).json({ error: 'Character not found or no changes' });
+    }
+
+    console.log('✅ Character updated:', id);
+    res.json({ message: '✅ Character updated successfully' });
+  } catch (err) {
+    console.error('❌ Failed to update character:', err);
+    res.status(500).json({ error: 'Failed to update character' });
   }
 }
