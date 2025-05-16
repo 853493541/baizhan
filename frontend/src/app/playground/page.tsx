@@ -9,9 +9,10 @@ interface Character {
   role: string;
   account: string;
   owner: string;
+  class?: string;
   comboBurst: boolean;
-  core: Record<string, number>;
-  needs: string[];
+  core?: Record<string, number>;
+  needs?: string[];
 }
 
 interface ActiveSchedule {
@@ -27,50 +28,56 @@ export default function Playground() {
   const [allCharacters, setAllCharacters] = useState<Character[]>([]);
   const [groups, setGroups] = useState<Character[][]>(Array.from({ length: 8 }, () => []));
   const [viewMode, setViewMode] = useState<ViewMode>("name");
+  const [showLevels, setShowLevels] = useState(true);
   const [newGroupName, setNewGroupName] = useState("");
   const [message, setMessage] = useState("");
   const [groupList, setGroupList] = useState<ActiveSchedule[]>([]);
   const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
+  const [draggedChar, setDraggedChar] = useState<Character | null>(null);
+  const [dragSourceGroupIndex, setDragSourceGroupIndex] = useState<number | null>(null);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
   useEffect(() => {
-    console.log("📥 Fetching /characters/core...");
-    axios.get(`${API_BASE}/characters/core`)
-      .then((res) => {
-        console.log("✅ Characters loaded:", res.data.length);
-        setAllCharacters(res.data);
-      })
-      .catch((err) => console.error("❌ Failed to load characters:", err));
+    console.log("📥 Fetching available characters...");
+    axios.get(`${API_BASE}/characters/core`).then((charRes) => {
+      const fetchedCharacters: Character[] = charRes.data;
 
-    console.log("📥 Fetching /active-scheduling...");
-    axios.get(`${API_BASE}/active-scheduling`)
-      .then((res) => {
-        console.log("✅ Groups loaded:", res.data.length);
-        console.log("📦 First group:", res.data[0]);
-        setGroupList(res.data);
-        if (res.data.length > 0) {
-          setCurrentGroupId(res.data[0]._id);
-          setGroups(res.data[0].groups);
+      console.log("📥 Fetching active group snapshot...");
+      axios.get(`${API_BASE}/active-scheduling`).then((groupRes) => {
+        const schedules: ActiveSchedule[] = groupRes.data;
+        const firstGroup = schedules[0];
+        setGroupList(schedules);
+
+        if (firstGroup) {
+          console.log("📦 Loaded active schedule:", firstGroup);
+          setCurrentGroupId(firstGroup._id);
+          setGroups(firstGroup.groups);
+
+          const used = new Set(firstGroup.groups.flat().map((c) => `${c.name}|${c.account}`));
+          const available = fetchedCharacters.filter(
+            (c) => !used.has(`${c.name}|${c.account}`)
+          );
+          setAllCharacters(available);
+        } else {
+          setAllCharacters(fetchedCharacters);
         }
-      })
-      .catch((err) => console.error("❌ Failed to load group list", err));
+      });
+    });
   }, []);
-
-  useEffect(() => {
-    if (!currentGroupId) return;
-    const selected = groupList.find((g) => g._id === currentGroupId);
-    console.log("🔄 Switching to group:", currentGroupId, selected?.name);
-    if (selected) {
-      setGroups(selected.groups);
-      console.log("🧩 Group members:", selected.groups);
-    }
-  }, [currentGroupId, groupList]);
 
   const renderDisplay = (char: Character) => {
     if (viewMode === "name") return `${char.comboBurst ? "@" : ""}${char.name}`;
-    if (viewMode === "core") return Object.entries(char.core).map(([k, v]) => `${v}${k}`).join("  ");
-    if (viewMode === "needs") return `需求: ${char.needs.join(", ")}`;
+    if (viewMode === "core") {
+      if (!char.core) return "(无技能)";
+      return Object.entries(char.core)
+        .map(([k, v]) => (showLevels ? `${v}${k}` : k))
+        .join("  ");
+    }
+    if (viewMode === "needs") {
+      if (!char.needs) return "(无需求)";
+      return char.needs.length > 0 ? `${char.needs.join(" ")}` : "无需求";
+    }
     return char.name;
   };
 
@@ -83,18 +90,9 @@ export default function Playground() {
     }
   };
 
-  const handleDrop = (groupIndex: number, char: Character) => {
-    const updatedGroups = [...groups];
-    updatedGroups[groupIndex] = [...updatedGroups[groupIndex], char];
-    setGroups(updatedGroups);
-
-    if (currentGroupId) {
-      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: updatedGroups })
-        .catch(err => console.error("Failed to update active group:", err));
-    }
-  };
-
-  const handleDragStart = (event: React.DragEvent, char: Character) => {
+  const handleDragStart = (event: React.DragEvent, char: Character, originGroupIndex?: number) => {
+    setDraggedChar(char);
+    setDragSourceGroupIndex(originGroupIndex ?? null);
     event.dataTransfer.setData("text/plain", JSON.stringify(char));
   };
 
@@ -102,21 +100,53 @@ export default function Playground() {
     event.preventDefault();
   };
 
-  const handleDropEvent = (event: React.DragEvent, groupIndex: number) => {
+  const handleDropEvent = (event: React.DragEvent, targetGroupIndex: number) => {
     event.preventDefault();
-    const charData = event.dataTransfer.getData("text/plain");
-    const char: Character = JSON.parse(charData);
-    handleDrop(groupIndex, char);
+    if (!draggedChar) return;
+
+    const updatedGroups = [...groups];
+
+    if (dragSourceGroupIndex !== null) {
+      updatedGroups[dragSourceGroupIndex] = updatedGroups[dragSourceGroupIndex].filter(
+        (c) => !(c.name === draggedChar.name && c.account === draggedChar.account)
+      );
+    } else {
+      setAllCharacters((prev) =>
+        prev.filter((c) => !(c.name === draggedChar.name && c.account === draggedChar.account))
+      );
+    }
+
+    updatedGroups[targetGroupIndex] = [...updatedGroups[targetGroupIndex], draggedChar];
+    setGroups(updatedGroups);
+    setDraggedChar(null);
+    setDragSourceGroupIndex(null);
+
+    if (currentGroupId) {
+      console.log("📤 Submitting updated groups to backend:", JSON.stringify(updatedGroups, null, 2));
+      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: updatedGroups })
+        .then(() => console.log("✅ Groups saved"))
+        .catch((err) => console.error("❌ Failed to save groups:", err));
+    }
+  };
+
+  const handleRemoveCharacter = (groupIndex: number, charIndex: number, char: Character) => {
+    const updatedGroups = [...groups];
+    updatedGroups[groupIndex] = updatedGroups[groupIndex].filter((_, i) => i !== charIndex);
+    setGroups(updatedGroups);
+    setAllCharacters((prev) => [...prev, char]);
+
+    if (currentGroupId) {
+      console.log("📤 Submitting after character removal:", JSON.stringify(updatedGroups, null, 2));
+      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: updatedGroups })
+        .then(() => console.log("✅ Character removed and groups updated"))
+        .catch((err) => console.error("❌ Failed to sync groups:", err));
+    }
   };
 
   const handleCreateNewGroup = async () => {
     if (!newGroupName.trim()) return;
-
     try {
-      const res = await axios.post(`${API_BASE}/active-scheduling/create`, {
-        name: newGroupName,
-      });
-
+      const res = await axios.post(`${API_BASE}/active-scheduling/create`, { name: newGroupName });
       const created = res.data;
       setMessage(`✅ Created group: ${created.name}`);
       setNewGroupName("");
@@ -163,6 +193,17 @@ export default function Playground() {
         <button onClick={() => setViewMode("name")}>显示名字</button>
         <button onClick={() => setViewMode("core")}>显示技能</button>
         <button onClick={() => setViewMode("needs")}>显示需求</button>
+        {viewMode === "core" && (
+          <label style={{ marginLeft: "1rem", fontWeight: "500" }}>
+            <input
+              type="checkbox"
+              checked={showLevels}
+              onChange={() => setShowLevels(!showLevels)}
+              style={{ marginRight: "0.5rem" }}
+            />
+            显示等级
+          </label>
+        )}
       </div>
 
       <h2>可选角色</h2>
@@ -181,24 +222,30 @@ export default function Playground() {
 
       <h2>小队</h2>
       <div className={styles.groupGrid}>
-        {groups.map((group, groupIndex) => {
-          console.log(`🧪 Rendering Group ${groupIndex + 1}`, group);
-          return (
-            <div
-              key={groupIndex}
-              className={styles.groupBox}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDropEvent(e, groupIndex)}
-            >
-              <h3>组 {groupIndex + 1}</h3>
-              {group.map((char, i) => (
-                <div key={i} className={`${styles.charPill} ${getRoleClass(char.role)}`}>
-                  {renderDisplay(char)}
-                </div>
-              ))}
-            </div>
-          );
-        })}
+        {groups.map((group, groupIndex) => (
+          <div
+            key={groupIndex}
+            className={styles.groupCard}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDropEvent(e, groupIndex)}
+          >
+            <h3>组 {groupIndex + 1}</h3>
+            {group.map((char, i) => (
+              <div
+                key={i}
+                className={`${styles.charPill} ${getRoleClass(char.role)}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, char, groupIndex)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  handleRemoveCharacter(groupIndex, i, char);
+                }}
+              >
+                {renderDisplay(char)}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

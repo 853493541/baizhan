@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 
-console.log('📦 [Model] Loading ActiveScheduling model...');
-
 const CharacterSchema = new mongoose.Schema({
   name: String,
   account: String,
@@ -9,10 +7,8 @@ const CharacterSchema = new mongoose.Schema({
   role: String,
   class: String,
   comboBurst: Boolean,
-  abilities: {
-    core: { type: Map, of: Number },
-    healing: { type: Map, of: Number }
-  }
+  core: { type: Map, of: Number },
+  needs: [String]
 }, { _id: false });
 
 const ActiveSchedulingSchema = new mongoose.Schema({
@@ -21,10 +17,8 @@ const ActiveSchedulingSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// ✅ Force collection name and disable pluralization
 const ActiveScheduling = mongoose.models.ActiveScheduling ||
-  mongoose.model('ActiveScheduling', ActiveSchedulingSchema, 'activeScheduling');
-
-console.log('✅ [Model] ActiveScheduling model registered');
+  mongoose.model("ActiveScheduling", ActiveSchedulingSchema, "activeScheduling");
 
 export default ActiveScheduling;
+
