@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import CharacterSummaryModal from './CharacterSummaryModal';
+import CurrentScheduleView from './components/CurrentSchedule/CurrentScheduleView';
 import styles from './Styles/page.module.css';
 import Link from 'next/link';
 
@@ -21,6 +22,9 @@ export default function HomePage() {
       </div>
 
       {showModal && <CharacterSummaryModal onClose={() => setShowModal(false)} />}
+
+      <h2 className={styles.subheading}>📋 本周排表</h2>
+      <CurrentScheduleView />
     </div>
   );
 }

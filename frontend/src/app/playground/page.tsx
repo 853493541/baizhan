@@ -9,7 +9,6 @@ interface Character {
   role: string;
   account: string;
   owner: string;
-  class?: string;
   comboBurst: boolean;
   core?: Record<string, number>;
   needs?: string[];
@@ -43,7 +42,7 @@ export default function Playground() {
     axios.get(`${API_BASE}/characters/core`).then((charRes) => {
       const fetchedCharacters: Character[] = charRes.data;
 
-      console.log("📥 Fetching active group snapshot...");
+      console.log("📥 Fetching active schedule snapshot...");
       axios.get(`${API_BASE}/active-scheduling`).then((groupRes) => {
         const schedules: ActiveSchedule[] = groupRes.data;
         const firstGroup = schedules[0];
@@ -122,10 +121,9 @@ export default function Playground() {
     setDragSourceGroupIndex(null);
 
     if (currentGroupId) {
-      console.log("📤 Submitting updated groups to backend:", JSON.stringify(updatedGroups, null, 2));
-      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: updatedGroups })
-        .then(() => console.log("✅ Groups saved"))
-        .catch((err) => console.error("❌ Failed to save groups:", err));
+      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, {
+        groups: updatedGroups
+      }).catch((err) => console.error("❌ Failed to save groups:", err));
     }
   };
 
@@ -136,10 +134,9 @@ export default function Playground() {
     setAllCharacters((prev) => [...prev, char]);
 
     if (currentGroupId) {
-      console.log("📤 Submitting after character removal:", JSON.stringify(updatedGroups, null, 2));
-      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: updatedGroups })
-        .then(() => console.log("✅ Character removed and groups updated"))
-        .catch((err) => console.error("❌ Failed to sync groups:", err));
+      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, {
+        groups: updatedGroups
+      }).catch((err) => console.error("❌ Failed to sync groups:", err));
     }
   };
 
@@ -157,6 +154,35 @@ export default function Playground() {
     } catch (err) {
       console.error("Failed to create group:", err);
       setMessage("❌ Failed to create group");
+    }
+  };
+
+  const handleSubmitCurrentSchedule = async () => {
+    try {
+      console.log("🚀 Submitting current schedule...");
+      console.log("📋 Current groups state:", groups);
+
+      const schedule = groups.map((g, i) => ({
+        groupIndex: i,
+        characters: g
+      }));
+
+      console.log("📤 Transformed schedule to send:", JSON.stringify(schedule, null, 2));
+
+      const res = await axios.post(`${API_BASE}/current-schedule`, { schedule });
+
+      console.log("✅ Server response:", res.data);
+      alert("✅ 已保存为当前排表！");
+    } catch (err: any) {
+      console.error("❌ 提交当前排表失败:", err);
+      if (err.response) {
+        console.error("❗ Server responded with:", err.response.data);
+      } else if (err.request) {
+        console.error("❗ No response received:", err.request);
+      } else {
+        console.error("❗ Error setting up request:", err.message);
+      }
+      alert("❌ 提交失败！");
     }
   };
 
@@ -207,33 +233,10 @@ export default function Playground() {
       </div>
 
       <div className={styles.resetRow}>
-  <button
-    className={styles.resetButton}
-    onClick={() => {
-      if (!currentGroupId) return;
-      const confirmReset = confirm("⚠️ 是否确认清空所有小队？此操作无法撤销！");
-      if (!confirmReset) return;
-
-      const clearedGroups = Array.from({ length: 8 }, () => []);
-      setGroups(clearedGroups);
-      setAllCharacters(prev => {
-        const existing = [...prev];
-        groupList
-          .find(g => g._id === currentGroupId)
-          ?.groups.flat()
-          .forEach(c => existing.push(c));
-        return existing;
-      });
-
-      axios.post(`${API_BASE}/active-scheduling/${currentGroupId}`, { groups: clearedGroups })
-        .then(() => console.log("🧼 所有小队已重置"))
-        .catch(err => console.error("❌ 重置失败:", err));
-    }}
-  >
-    ⚠️ 重置所有小队
-  </button>
-</div>
-
+        <button className={styles.resetButton} onClick={handleSubmitCurrentSchedule}>
+          ✅ 提交为当前排表
+        </button>
+      </div>
 
       <h2>可选角色</h2>
       <div className={styles.availableGrid}>
