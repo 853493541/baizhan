@@ -81,27 +81,25 @@ export default function CurrentScheduleView() {
   });
 
   return (
-    <div className={styles.container}>
-      <div className={styles.toggleRow}>
-        <label>查看方式：</label>
-        <div className={styles.toggleButtons}>
-          <button onClick={() => setViewMode('name')} className={viewMode === 'name' ? styles.active : ''}>名称</button>
-          <button onClick={() => setViewMode('core')} className={viewMode === 'core' ? styles.active : ''}>技能</button>
-          <button onClick={() => setViewMode('needs')} className={viewMode === 'needs' ? styles.active : ''}>缺失</button>
-        </div>
-        {viewMode === 'core' && (
-          <label className={styles.levelToggle}>
-            <input type="checkbox" checked={showLevels} onChange={(e) => setShowLevels(e.target.checked)} /> 显示等级
-          </label>
-        )}
+  <div className={styles.container}>
+    <div className={styles.toggleRow}>
+<div className={styles.toggleButtons}>
+    <label>查看方式：</label>
+  <button onClick={() => setViewMode('name')} className={viewMode === 'name' ? styles.activeBlue : ''}>名称</button>
+  <button onClick={() => setViewMode('core')} className={viewMode === 'core' ? styles.activeBlue : ''}>技能</button>
+  <button onClick={() => setViewMode('needs')} className={viewMode === 'needs' ? styles.activeBlue : ''}>缺失</button>
+</div>
 
-        <div className={styles.statusFilterRow}>
-          <label>只看状态：</label>
-          <button onClick={() => setStatusFilter('notDone')} className={statusFilter === 'notDone' ? styles.active : ''}>未完成</button>
-          <button onClick={() => setStatusFilter('done')} className={statusFilter === 'done' ? styles.active : ''}>已完成</button>
-          <button onClick={() => setStatusFilter('all')} className={statusFilter === 'all' ? styles.active : ''}>全部</button>
-        </div>
-      </div>
+<div className={styles.toggleButtons}>
+    <label>完成状态：</label>
+      <button onClick={() => setStatusFilter('done')} className={statusFilter === 'done' ? styles.activeGreen : ''}>已完成</button>
+  <button onClick={() => setStatusFilter('notDone')} className={statusFilter === 'notDone' ? styles.activeGreen : ''}>未完成</button>
+
+  <button onClick={() => setStatusFilter('all')} className={statusFilter === 'all' ? styles.activeGreen : ''}>全部</button>
+</div>
+    </div>
+
+
 
       <div className={styles.groupGrid}>
         {filteredGroups.map((group) => (
@@ -109,16 +107,24 @@ export default function CurrentScheduleView() {
             <div className={styles.groupHeader}>
               <span>第 {group.groupIndex + 1} 组</span>
               <label>
-                <input
-                  type="checkbox"
-                  checked={group.completed}
-                  onChange={() => {
-                    const updated = schedule.groups.map((g) =>
-                      g.groupIndex === group.groupIndex ? { ...g, completed: !g.completed } : g
-                    );
-                    saveChanges(updated);
-                  }}
-                />
+
+<input
+  type="checkbox"
+  checked={group.completed}
+  onChange={() => {
+    const confirmMessage = group.completed
+      ? '确定要将此小组标记为“未完成”吗？'
+      : '确定要将此小组标记为“已完成”？';
+    if (!window.confirm(confirmMessage)) return;
+
+    const updated = schedule.groups.map((g) =>
+      g.groupIndex === group.groupIndex
+        ? { ...g, completed: !g.completed }
+        : g
+    );
+    saveChanges(updated);
+  }}
+/>
                 已完成
               </label>
             </div>

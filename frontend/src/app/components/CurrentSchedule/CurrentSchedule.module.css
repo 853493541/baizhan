@@ -131,3 +131,80 @@
   background-color: #e0e0e0;
   color: #333;
 }
+
+
+.statusFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.statusFilterRow button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #aaa;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.statusFilterRow button:hover {
+  background-color: #f0f0f0;
+}
+
+.statusFilterRow .active {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.toggleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.viewModeRow,
+.statusFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.toggleButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggleButtons button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #aaa;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.toggleButtons .active {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.toggleButtons .activeBlue {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.toggleButtons .activeGreen {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
