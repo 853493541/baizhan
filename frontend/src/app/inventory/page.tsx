@@ -10,7 +10,6 @@ import { Character } from '../types';
 
 type Role = 'DPS' | 'Healer' | 'Tank';
 type RolePlusAll = Role | 'All';
-type EditMode = 'info' | 'abilities' | null;
 
 const roleLabels: { [key in RolePlusAll]: string } = {
   All: '全部',
@@ -29,17 +28,13 @@ const ownerLabels: { [key: string]: string } = {
 export default function CharacterPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [editingChar, setEditingChar] = useState<Character | null>(null);
-  const [editMode, setEditMode] = useState<EditMode>(null);
+  const [editMode, setEditMode] = useState<'info' | 'abilities' | null>(null);
 
   const [selectedRole, setSelectedRole] = useState<RolePlusAll>('All');
   const [ownerFilter, setOwnerFilter] = useState<string>('All');
 
   useEffect(() => {
-    const query: string[] = [];
-    if (ownerFilter !== 'All') query.push(`owner=${encodeURIComponent(ownerFilter)}`);
-    const queryStr = query.length > 0 ? `?${query.join('&')}` : '';
-
-    api.get(`/characters${queryStr}`)
+    api.get('/characters')
       .then(res => {
         const sanitized = res.data.map((c: Character) => ({
           ...c,
@@ -48,7 +43,15 @@ export default function CharacterPage() {
         setCharacters(sanitized);
       })
       .catch(err => console.error('❌ Failed to load:', err));
-  }, [ownerFilter]);
+  }, []);
+
+  const selectRole = (role: RolePlusAll) => {
+    setSelectedRole(prev => (prev === role ? 'All' : role));
+  };
+
+  const selectOwner = (owner: string) => {
+    setOwnerFilter(prev => prev === owner ? 'All' : owner);
+  };
 
   const handleSave = (updatedChar: Character): void => {
     api.put(`/characters/${updatedChar._id}`, updatedChar)
@@ -69,16 +72,9 @@ export default function CharacterPage() {
       });
   };
 
-  const selectRole = (role: RolePlusAll) => {
-    setSelectedRole(prev => prev === role ? 'All' : role);
-  };
-
-  const selectOwner = (owner: string) => {
-    setOwnerFilter(prev => prev === owner ? 'All' : owner);
-  };
-
   const filtered = characters.filter(char =>
-    (selectedRole === 'All' || char.role === selectedRole)
+    (selectedRole === 'All' || char.role === selectedRole) &&
+    (ownerFilter === 'All' || char.owner === ownerFilter)
   );
 
   return (
@@ -138,7 +134,6 @@ export default function CharacterPage() {
             <button className={styles.closeBtn} onClick={() => { setEditingChar(null); setEditMode(null); }}>✖</button>
             <EditCharacterAbilities
               character={editingChar}
-              onSave={handleSave}
               onCancel={() => { setEditingChar(null); setEditMode(null); }}
             />
           </div>

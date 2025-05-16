@@ -5,6 +5,7 @@ export type Character = {
   account: string;
   role: string;
   class: string;
+  owner: string;
   abilities: {
     core: { [key: string]: number };
     healing: { [key: string]: number };
