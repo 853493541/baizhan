@@ -1,0 +1,46 @@
+.container {
+  text-align: center;
+  padding: 3rem;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.primaryBtn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.primaryBtn:hover {
+  background-color: #2563eb;
+}
+
+.navBtn {
+  background-color: #f3f4f6;
+  color: #111827;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  text-decoration: none;
+  border: 1px solid #d1d5db;
+  transition: background 0.2s;
+}
+
+.navBtn:hover {
+  background-color: #e5e7eb;
+}

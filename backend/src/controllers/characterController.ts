@@ -80,3 +80,42 @@ export async function getFullCharacters(req: Request, res: Response) {
     res.status(500).json({ error: 'Failed to fetch characters' });
   }
 }
+
+export async function getCharacterSummary(req: Request, res: Response) {
+  try {
+    const db = await getDb();
+    const characters = await db.collection('characters').find().toArray();
+
+    const needsCount: Record<string, number> = {};
+    const needsDetail: Record<string, { name: string; role: string }[]> = {};
+    const level10: Record<string, { name: string; role: string }[]> = {};
+
+    for (const char of characters) {
+      const originalCore = char.abilities?.core || {};
+      const seenNeeds = new Set<string>();
+
+      for (const [name, level] of Object.entries(originalCore) as [string, number][]) {
+        const alias = ABILITY_ALIASES[name] || name;
+        if (!CORE_LIST.includes(alias)) continue;
+
+        if (level < 9 && !seenNeeds.has(alias)) {
+          needsCount[alias] = (needsCount[alias] || 0) + 1;
+          if (!needsDetail[alias]) needsDetail[alias] = [];
+          needsDetail[alias].push({ name: char.name, role: char.role });
+          seenNeeds.add(alias);
+        }
+
+        if (level === 10) {
+
+          if (!level10[alias]) level10[alias] = [];
+          level10[alias].push({ name: char.name, role: char.role });
+        }
+      }
+    }
+
+    return res.json({ needsCount, needsDetail, level10 });
+  } catch (err) {
+    console.error('Failed to fetch summary:', err);
+    res.status(500).json({ error: 'Failed to fetch summary' });
+  }
+}
