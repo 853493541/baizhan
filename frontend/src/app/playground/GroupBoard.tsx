@@ -1,9 +1,11 @@
 // src/app/playground/GroupBoard.tsx
+'use client';
+
 import React from 'react';
 import styles from './Styles/page.module.css';
 import { getCheckedNeeds, getGroupWarnings } from './ruleCheckers';
 import { getFilteredNeeds, getEnabledCoreSkills, SkillToggle } from './filterSkills';
-
+import SuggestionModal from './SuggestionModal';
 
 interface Character {
   name: string;
@@ -22,7 +24,12 @@ interface Props {
   viewMode: ViewMode;
   showLevels: boolean;
   skillToggle: SkillToggle;
-  
+
+  allCharacters: Character[];
+  suggestGroupIndex: number | null;
+  setSuggestGroupIndex: (val: number | null) => void;
+  addCharacterToGroup: (groupIndex: number, char: Character) => void;
+
   onDrop: (e: React.DragEvent, groupIndex: number) => void;
   onDragOver: (e: React.DragEvent) => void;
   onRemove: (groupIndex: number, charIndex: number, char: Character) => void;
@@ -34,6 +41,10 @@ export default function GroupBoard({
   viewMode,
   showLevels,
   skillToggle,
+  allCharacters,
+  suggestGroupIndex,
+  setSuggestGroupIndex,
+  addCharacterToGroup,
   onDrop,
   onDragOver,
   onRemove,
@@ -75,8 +86,7 @@ export default function GroupBoard({
     <div className={styles.groupGrid}>
       {groups.map((group, groupIndex) => {
         const checked = getCheckedNeeds(group);
-const warnings = getGroupWarnings(group, skillToggle);
-
+        const warnings = getGroupWarnings(group, skillToggle);
         const filteredSkills = getEnabledCoreSkills(skillToggle);
 
         return (
@@ -106,10 +116,15 @@ const warnings = getGroupWarnings(group, skillToggle);
 
             {/* Suggestion Button */}
             <div className={styles.suggestRow}>
-              <button className={styles.suggestButton}>＋</button>
+              <button
+                className={styles.suggestButton}
+                onClick={() => setSuggestGroupIndex(groupIndex)}
+              >
+                ＋
+              </button>
             </div>
 
-            {/* ✅ Dynamic Core Skill Checkboxes */}
+            {/* Core Skill Checkboxes */}
             <div className={styles.checkboxRow}>
               {filteredSkills.map((skill) => (
                 <div
@@ -121,7 +136,7 @@ const warnings = getGroupWarnings(group, skillToggle);
               ))}
             </div>
 
-            {/* ❗Warnings */}
+            {/* Warnings */}
             <div className={styles.warningBox}>
               {warnings.map((w, i) => (
                 <div key={i} className={styles.warning}>{w}</div>
@@ -130,6 +145,19 @@ const warnings = getGroupWarnings(group, skillToggle);
           </div>
         );
       })}
+
+      {suggestGroupIndex !== null && (
+        <SuggestionModal
+          groupIndex={suggestGroupIndex}
+          currentGroup={groups[suggestGroupIndex]}
+          allCharacters={allCharacters}
+          onSelect={addCharacterToGroup}
+          onClose={() => setSuggestGroupIndex(null)}
+          viewMode={viewMode}
+          showLevels={showLevels}
+          skillToggle={skillToggle}
+        />
+      )}
     </div>
   );
 }

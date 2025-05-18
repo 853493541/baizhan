@@ -18,6 +18,9 @@ export default function PlaygroundPage() {
     groupList,
     currentGroupId,
     skillToggle, // ✅ added
+      suggestGroupIndex,
+  setSuggestGroupIndex,
+  addCharacterToGroup,
      setSkillToggle,
     setNewGroupName,
     setViewMode,
@@ -104,6 +107,10 @@ export default function PlaygroundPage() {
         onDrop={handleDropEvent}
         onRemove={handleRemoveCharacter}
         onDragStart={handleDragStart}
+        allCharacters={allCharacters}
+          suggestGroupIndex={suggestGroupIndex}              // 🧩 add this
+  setSuggestGroupIndex={setSuggestGroupIndex}        // 🧩 and this
+  addCharacterToGroup={addCharacterToGroup}          // 🧩 and this
       />
     </div>
   );

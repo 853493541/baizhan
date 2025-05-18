@@ -19,7 +19,6 @@ interface ActiveSchedule {
 }
 
 export type ViewMode = 'name' | 'core' | 'needs';
-
 export type SkillToggle = Record<string, boolean>;
 
 const defaultSkillToggle: SkillToggle = {
@@ -42,6 +41,7 @@ export default function usePlaygroundState() {
   const [draggedChar, setDraggedChar] = useState<Character | null>(null);
   const [dragSourceGroupIndex, setDragSourceGroupIndex] = useState<number | null>(null);
   const [skillToggle, setSkillToggle] = useState<SkillToggle>(defaultSkillToggle);
+  const [suggestGroupIndex, setSuggestGroupIndex] = useState<number | null>(null); // 🆕 modal state
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -83,22 +83,32 @@ export default function usePlaygroundState() {
     event.preventDefault();
     if (!draggedChar) return;
 
+    addCharacterToGroup(targetGroupIndex, draggedChar, dragSourceGroupIndex);
+    setDraggedChar(null);
+    setDragSourceGroupIndex(null);
+  };
+
+  // 🆕 Used by both drag and suggestion
+  const addCharacterToGroup = (
+    groupIndex: number,
+    character: Character,
+    fromGroupIndex: number | null = null
+  ) => {
     const updatedGroups = [...groups];
 
-    if (dragSourceGroupIndex !== null) {
-      updatedGroups[dragSourceGroupIndex] = updatedGroups[dragSourceGroupIndex].filter(
-        (c) => !(c.name === draggedChar.name && c.account === draggedChar.account)
+    // Remove from previous group or available pool
+    if (fromGroupIndex !== null) {
+      updatedGroups[fromGroupIndex] = updatedGroups[fromGroupIndex].filter(
+        (c) => !(c.name === character.name && c.account === character.account)
       );
     } else {
       setAllCharacters((prev) =>
-        prev.filter((c) => !(c.name === draggedChar.name && c.account === draggedChar.account))
+        prev.filter((c) => !(c.name === character.name && c.account === character.account))
       );
     }
 
-    updatedGroups[targetGroupIndex] = [...updatedGroups[targetGroupIndex], draggedChar];
+    updatedGroups[groupIndex] = [...updatedGroups[groupIndex], character];
     setGroups(updatedGroups);
-    setDraggedChar(null);
-    setDragSourceGroupIndex(null);
 
     if (currentGroupId) {
       axios
@@ -177,5 +187,8 @@ export default function usePlaygroundState() {
     handleDragOver,
     handleDropEvent,
     handleRemoveCharacter,
+    suggestGroupIndex,            // 🆕
+    setSuggestGroupIndex,         // 🆕
+    addCharacterToGroup,          // 🆕 shared insert logic
   };
 }

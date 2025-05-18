@@ -1,0 +1,110 @@
+/* playground/Styles/SuggestionModal.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+.closeBtn {
+  margin-bottom: 1rem;
+  background: #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  float: right;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.character {
+  padding: 0.5rem;
+  background-color: #f4f4f4;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.character:hover {
+  background-color: #e0e0e0;
+}
+
+.suggestBox {
+  position: absolute;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  max-width: 300px;
+  z-index: 50;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.charPill {
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Role colors – reuse same ones */
+.tank {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.healer {
+  background-color: #ffd6d6;
+  color: #af1c1c;
+}
+
+.dps {
+  background-color: #e2f5e2;
+  color: #1f5d24;
+}
+
+.defaultBox {
+  background-color: #e0e0e0;
+  color: #333;
+}
