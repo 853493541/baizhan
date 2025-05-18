@@ -41,7 +41,7 @@ export default function usePlaygroundState() {
   const [draggedChar, setDraggedChar] = useState<Character | null>(null);
   const [dragSourceGroupIndex, setDragSourceGroupIndex] = useState<number | null>(null);
   const [skillToggle, setSkillToggle] = useState<SkillToggle>(defaultSkillToggle);
-  const [suggestGroupIndex, setSuggestGroupIndex] = useState<number | null>(null); // 🆕 modal state
+  const [suggestGroupIndex, setSuggestGroupIndex] = useState<number | null>(null);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -88,7 +88,6 @@ export default function usePlaygroundState() {
     setDragSourceGroupIndex(null);
   };
 
-  // 🆕 Used by both drag and suggestion
   const addCharacterToGroup = (
     groupIndex: number,
     character: Character,
@@ -96,7 +95,6 @@ export default function usePlaygroundState() {
   ) => {
     const updatedGroups = [...groups];
 
-    // Remove from previous group or available pool
     if (fromGroupIndex !== null) {
       updatedGroups[fromGroupIndex] = updatedGroups[fromGroupIndex].filter(
         (c) => !(c.name === character.name && c.account === character.account)
@@ -168,7 +166,9 @@ export default function usePlaygroundState() {
 
   return {
     allCharacters,
+    setAllCharacters,
     groups,
+    setGroups,
     viewMode,
     showLevels,
     newGroupName,
@@ -187,8 +187,8 @@ export default function usePlaygroundState() {
     handleDragOver,
     handleDropEvent,
     handleRemoveCharacter,
-    suggestGroupIndex,            // 🆕
-    setSuggestGroupIndex,         // 🆕
-    addCharacterToGroup,          // 🆕 shared insert logic
+    suggestGroupIndex,
+    setSuggestGroupIndex,
+    addCharacterToGroup,
   };
 }

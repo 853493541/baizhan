@@ -5,23 +5,25 @@ import AvailableCharacters from './AvailableCharacters';
 import GroupBoard from './GroupBoard';
 import usePlaygroundState from './usePlaygroundState';
 import SkillTogglePanel from './SkillTogglePanel';
-
+import type { Character } from '../types';
 
 export default function PlaygroundPage() {
   const {
     allCharacters,
+    setAllCharacters,
     groups,
+    setGroups,
     viewMode,
     showLevels,
     newGroupName,
     message,
     groupList,
     currentGroupId,
-    skillToggle, // ✅ added
-      suggestGroupIndex,
-  setSuggestGroupIndex,
-  addCharacterToGroup,
-     setSkillToggle,
+    skillToggle,
+    suggestGroupIndex,
+    setSuggestGroupIndex,
+    addCharacterToGroup,
+    setSkillToggle,
     setNewGroupName,
     setViewMode,
     setShowLevels,
@@ -33,6 +35,66 @@ export default function PlaygroundPage() {
     handleDropEvent,
     handleRemoveCharacter,
   } = usePlaygroundState();
+
+  const handleSmartSchedule = async () => {
+    try {
+      const payload = {
+        characters: [...allCharacters, ...groups.flat()],
+        skillToggle,
+      };
+
+      console.log('📤 Sending to Python:', payload);
+
+      const res = await fetch('http://localhost:8000/solve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      console.log('📥 Response from Python:', data);
+
+      if (data.groups) {
+        const all = [...allCharacters, ...groups.flat()];
+        const nameToCharacter = new Map(
+          all.map((c) => [`${c.name}|${c.account}`, c])
+        );
+
+        const fullGroups = data.groups.map((group: string[]) =>
+          group
+            .map((name: string) => {
+              const [charName, account] = name.split('|');
+              const char = nameToCharacter.get(`${charName}|${account}`);
+              if (!char) {
+                console.warn(`⚠️ Character not found for: ${name}`);
+              }
+              return char;
+            })
+            .filter(Boolean)
+        );
+
+        console.log('✅ Mapped fullGroups to Character[][]:', fullGroups);
+        setGroups(fullGroups);
+
+        const usedKeys = new Set(fullGroups.flat().map((c: Character) => `${c.name}|${c.account}`));
+        const remaining = allCharacters.filter((c) => !usedKeys.has(`${c.name}|${c.account}`));
+        setAllCharacters(remaining);
+
+        if (currentGroupId) {
+          await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling/${currentGroupId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ groups: fullGroups }),
+          });
+          console.log('💾 Groups saved to DB');
+        }
+      } else {
+        console.error('❌ Python response did not contain `groups`');
+      }
+    } catch (err) {
+      console.error('❌ 智能排表失败:', err);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -80,6 +142,13 @@ export default function PlaygroundPage() {
             显示等级
           </label>
         )}
+        <button
+          onClick={handleSmartSchedule}
+          className={styles.smartButton}
+          style={{ marginLeft: '2rem' }}
+        >
+          🧠 智能排表
+        </button>
       </div>
 
       <div className={styles.resetRow}>
@@ -87,14 +156,16 @@ export default function PlaygroundPage() {
           ✅ 提交为当前排表
         </button>
       </div>
-        <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
+
+      <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
+
       <h2>可选角色</h2>
       <AvailableCharacters
         characters={allCharacters}
         onDragStart={handleDragStart}
         viewMode={viewMode}
         showLevels={showLevels}
-        skillToggle={skillToggle} // ✅ added
+        skillToggle={skillToggle}
       />
 
       <h2>小队</h2>
@@ -102,15 +173,15 @@ export default function PlaygroundPage() {
         groups={groups}
         viewMode={viewMode}
         showLevels={showLevels}
-        skillToggle={skillToggle} // ✅ added
+        skillToggle={skillToggle}
         onDragOver={handleDragOver}
         onDrop={handleDropEvent}
         onRemove={handleRemoveCharacter}
         onDragStart={handleDragStart}
         allCharacters={allCharacters}
-          suggestGroupIndex={suggestGroupIndex}              // 🧩 add this
-  setSuggestGroupIndex={setSuggestGroupIndex}        // 🧩 and this
-  addCharacterToGroup={addCharacterToGroup}          // 🧩 and this
+        suggestGroupIndex={suggestGroupIndex}
+        setSuggestGroupIndex={setSuggestGroupIndex}
+        addCharacterToGroup={addCharacterToGroup}
       />
     </div>
   );
