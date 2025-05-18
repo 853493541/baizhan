@@ -108,3 +108,19 @@
   background-color: #e0e0e0;
   color: #333;
 }
+
+.needsRowSplit {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.helpful {
+  font-weight: bold;
+}
+
+.extra {
+  color: #777;
+  font-weight: normal;
+}

@@ -51,14 +51,19 @@ export default function SuggestionModal({
   const renderDisplay = (char: Character) => {
     if (viewMode === 'name') return `${char.comboBurst ? '@' : ''}${char.name}`;
 
-    if (viewMode === 'core') {
-      return '(略过核心展示)'; // core is not used for suggestion scoring
-    }
+    if (viewMode === 'core') return '(略过核心展示)';
 
     if (viewMode === 'needs') {
       const [contributing, others] = splitNeedsForDisplay(char, groupUnmet, skillToggle);
-      if (contributing.length === 0 && others.length === 0) return '无需求';
-      return contributing.join(' ') + (others.length ? ` | ${others.join(' ')}` : '');
+      const left = contributing.length > 0 ? contributing.join(' ') : '⋯';
+      const right = others.length > 0 ? others.join(' ') : '⋯';
+
+      return (
+        <div className={styles.needsRowSplit}>
+          <span className={styles.helpful}>{left}</span>
+          <span className={styles.extra}>{right}</span>
+        </div>
+      );
     }
 
     return char.name;
