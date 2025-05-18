@@ -1,6 +1,9 @@
 // src/app/playground/GroupBoard.tsx
 import React from 'react';
 import styles from './Styles/page.module.css';
+import { getCheckedNeeds, getGroupWarnings } from './ruleCheckers';
+
+const CORE_SKILLS = ['钱', '斗', '天', '黑', '引'];
 
 interface Character {
   name: string;
@@ -63,30 +66,61 @@ export default function GroupBoard({
 
   return (
     <div className={styles.groupGrid}>
-      {groups.map((group, groupIndex) => (
-        <div
-          key={groupIndex}
-          className={styles.groupCard}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, groupIndex)}
-        >
-          <h3>组 {groupIndex + 1}</h3>
-          {group.map((char, i) => (
-            <div
-              key={i}
-              className={`${styles.charPill} ${getRoleClass(char.role)}`}
-              draggable
-              onDragStart={(e) => onDragStart(e, char, groupIndex)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                onRemove(groupIndex, i, char);
-              }}
-            >
-              {renderDisplay(char)}
+      {groups.map((group, groupIndex) => {
+        const checked = getCheckedNeeds(group);
+        const warnings = getGroupWarnings(group);
+
+        return (
+          <div
+            key={groupIndex}
+            className={styles.groupCard}
+            onDragOver={onDragOver}
+            onDrop={(e) => onDrop(e, groupIndex)}
+          >
+            <h3>组 {groupIndex + 1}</h3>
+
+            {/* Characters */}
+            {group.map((char, i) => (
+              <div
+                key={i}
+                className={`${styles.charPill} ${getRoleClass(char.role)}`}
+                draggable
+                onDragStart={(e) => onDragStart(e, char, groupIndex)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  onRemove(groupIndex, i, char);
+                }}
+              >
+                {renderDisplay(char)}
+              </div>
+            ))}
+
+            {/* Suggestion Button (functionality later) */}
+            <div className={styles.suggestRow}>
+              <button className={styles.suggestButton}>＋</button>
             </div>
-          ))}
-        </div>
-      ))}
+
+            {/* ✅ Core Skill Checkboxes */}
+            <div className={styles.checkboxRow}>
+              {CORE_SKILLS.map((skill) => (
+                <div
+                  key={skill}
+                  className={checked[skill] ? styles.checked : styles.unchecked}
+                >
+                  {skill}
+                </div>
+              ))}
+            </div>
+
+            {/* ❗Warnings */}
+            <div className={styles.warningBox}>
+              {warnings.map((w, i) => (
+                <div key={i} className={styles.warning}>{w}</div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

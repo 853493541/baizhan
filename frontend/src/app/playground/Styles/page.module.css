@@ -161,3 +161,56 @@
 .saveButton:hover {
   background-color: #45a049;
 }
+
+.checkboxRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  gap: 0.25rem;
+}
+
+.checked {
+  background-color: #21a551;
+  color: white;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.unchecked {
+  background-color: #e5e7eb;
+  color: #555;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.warningBox {
+  margin-top: 0.5rem;
+}
+
+.warning {
+  color: red;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.suggestRow {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.suggestButton {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}

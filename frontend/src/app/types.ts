@@ -1,14 +1,11 @@
 // src/app/types.ts
+
 export type Character = {
-  _id?: string;
   name: string;
-  account: string;
   role: string;
-  class: string;
+  account: string;
   owner: string;
-  abilities: {
-    core: { [key: string]: number };
-    healing: { [key: string]: number };
-  };
-  comboBurst?: boolean; // ✅ NEW FIELD
+  comboBurst: boolean;
+  core?: Record<string, number>;
+  needs?: string[];
 };
