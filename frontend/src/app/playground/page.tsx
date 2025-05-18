@@ -38,12 +38,23 @@ export default function PlaygroundPage() {
 
   const handleSmartSchedule = async () => {
     try {
+      console.log('🧠 开始智能排表流程...');
+      const all = [...allCharacters, ...groups.flat()];
+
+      console.log('📡 请求角色需求数据...');
+      const summaryRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/characters/summary`);
+      const summary = await summaryRes.json();
+      const needsCount = summary.needsCount;
+
+      console.log('📊 已获取 needsCount:', needsCount);
+
       const payload = {
-        characters: [...allCharacters, ...groups.flat()],
+        characters: all,
         skillToggle,
+        needsCount,
       };
 
-      console.log('📤 Sending to Python:', payload);
+      console.log('📤 发送给 Python solver 的数据:', payload);
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_SOLVER_API}/solve`, {
         method: 'POST',
@@ -52,10 +63,9 @@ export default function PlaygroundPage() {
       });
 
       const data = await res.json();
-      console.log('📥 Response from Python:', data);
+      console.log('📥 来自 Python 的响应:', data);
 
       if (data.groups) {
-        const all = [...allCharacters, ...groups.flat()];
         const nameToCharacter = new Map(
           all.map((c) => [`${c.name}|${c.account}`, c])
         );
@@ -66,14 +76,15 @@ export default function PlaygroundPage() {
               const [charName, account] = name.split('|');
               const char = nameToCharacter.get(`${charName}|${account}`);
               if (!char) {
-                console.warn(`⚠️ Character not found for: ${name}`);
+                console.warn(`⚠️ 无法匹配角色: ${name}`);
               }
               return char;
             })
             .filter(Boolean)
         );
 
-        console.log('✅ Mapped fullGroups to Character[][]:', fullGroups);
+        console.log('✅ 组队结果已转换为 Character[][]:', fullGroups);
+
         setGroups(fullGroups);
 
         const usedKeys = new Set(fullGroups.flat().map((c: Character) => `${c.name}|${c.account}`));
@@ -86,13 +97,35 @@ export default function PlaygroundPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ groups: fullGroups }),
           });
-          console.log('💾 Groups saved to DB');
+          console.log('💾 分组结果已保存到数据库');
         }
       } else {
-        console.error('❌ Python response did not contain `groups`');
+        console.error('❌ Python 响应中未包含 `groups` 字段');
       }
     } catch (err) {
       console.error('❌ 智能排表失败:', err);
+    }
+  };
+
+  const handleResetGroups = async () => {
+    const all = [...allCharacters, ...groups.flat()];
+    const emptyGroups = Array(8).fill([]);
+
+    setAllCharacters(all);
+    setGroups(emptyGroups);
+    console.log('🔁 所有小队已重置');
+
+    if (currentGroupId) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling/${currentGroupId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ groups: emptyGroups }),
+        });
+        console.log('💾 重置小队保存到数据库');
+      } catch (err) {
+        console.error('❌ 无法保存重置状态:', err);
+      }
     }
   };
 
@@ -154,6 +187,9 @@ export default function PlaygroundPage() {
       <div className={styles.resetRow}>
         <button className={styles.resetButton} onClick={handleSubmitCurrentSchedule}>
           ✅ 提交为当前排表
+        </button>
+        <button className={styles.resetButton} onClick={handleResetGroups}>
+          🔁 重置小队
         </button>
       </div>
 
