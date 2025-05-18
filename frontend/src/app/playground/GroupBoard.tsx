@@ -4,6 +4,7 @@ import styles from './Styles/page.module.css';
 import { getCheckedNeeds, getGroupWarnings } from './ruleCheckers';
 import { getFilteredNeeds, getEnabledCoreSkills, SkillToggle } from './filterSkills';
 
+
 interface Character {
   name: string;
   role: string;
@@ -21,6 +22,7 @@ interface Props {
   viewMode: ViewMode;
   showLevels: boolean;
   skillToggle: SkillToggle;
+  
   onDrop: (e: React.DragEvent, groupIndex: number) => void;
   onDragOver: (e: React.DragEvent) => void;
   onRemove: (groupIndex: number, charIndex: number, char: Character) => void;
@@ -73,7 +75,8 @@ export default function GroupBoard({
     <div className={styles.groupGrid}>
       {groups.map((group, groupIndex) => {
         const checked = getCheckedNeeds(group);
-        const warnings = getGroupWarnings(group);
+const warnings = getGroupWarnings(group, skillToggle);
+
         const filteredSkills = getEnabledCoreSkills(skillToggle);
 
         return (

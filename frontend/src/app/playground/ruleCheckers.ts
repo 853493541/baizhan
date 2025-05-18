@@ -1,8 +1,7 @@
-import { Character } from '../types';
+import { Character } from './usePlaygroundState';
 
 const CORE_SKILLS = ['钱', '斗', '天', '黑', '引'];
 
-// ✅ 1. Check which core skills are already fulfilled
 export function getCheckedNeeds(group: Character[]): Record<string, boolean> {
   const needed: Record<string, boolean> = {
     钱: false,
@@ -20,17 +19,18 @@ export function getCheckedNeeds(group: Character[]): Record<string, boolean> {
     });
   });
 
-  console.log('🟩 Needed core skills:', needed);
   return needed;
 }
 
-// ⚠️ 2. Return list of warning strings
-export function getGroupWarnings(group: Character[]): string[] {
+export function getGroupWarnings(
+  group: Character[],
+  skillToggle: Record<string, boolean>
+): string[] {
   const warnings: string[] = [];
 
   if (group.length === 0) return warnings;
 
-  // 🟥 Same account conflict
+  // ✅ Same account check
   const seenAccounts = new Set<string>();
   for (const char of group) {
     if (seenAccounts.has(char.account)) {
@@ -40,16 +40,17 @@ export function getGroupWarnings(group: Character[]): string[] {
     seenAccounts.add(char.account);
   }
 
-  // 🟩 Missing healer
+  // ✅ Healer requirement
   const hasHealer = group.some((char) => char.role === 'Healer');
   if (!hasHealer) warnings.push('缺少治疗');
 
-  // ⚫ Core needs unmet (only if 3+ chars)
+  // ✅ Conflict skills (respecting toggle)
   if (group.length >= 3) {
     const checked = getCheckedNeeds(group);
-    const missing = CORE_SKILLS.filter((s) => !checked[s]);
-    for (const skill of missing) {
-      warnings.push(`冲突技能 ${skill}`);
+    for (const skill of CORE_SKILLS) {
+      if (skillToggle[skill] && !checked[skill]) {
+        warnings.push(`冲突技能 ${skill}`);
+      }
     }
   }
 
