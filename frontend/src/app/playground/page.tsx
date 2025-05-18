@@ -45,7 +45,7 @@ export default function PlaygroundPage() {
 
       console.log('📤 Sending to Python:', payload);
 
-      const res = await fetch('http://localhost:8000/solve', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SOLVER_API}/solve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
