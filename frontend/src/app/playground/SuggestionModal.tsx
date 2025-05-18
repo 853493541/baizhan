@@ -4,12 +4,8 @@
 import React from 'react';
 import styles from './Styles/SuggestionModal.module.css';
 import { Character } from '../types';
-import { getValidSuggestions } from '../playground/filterSuggestions';
-import { getFilteredNeeds } from '../playground/filterSkills';
-
-interface SkillToggle {
-  [key: string]: boolean;
-}
+import { getValidSuggestions, splitNeedsForDisplay } from '../playground/filterSuggestions';
+import { SkillToggle } from '../playground/filterSkills';
 
 interface Props {
   groupIndex: number;
@@ -32,7 +28,7 @@ export default function SuggestionModal({
   showLevels,
   skillToggle,
 }: Props) {
-  const suggestions = getValidSuggestions(allCharacters, currentGroup);
+  const suggestions = getValidSuggestions(allCharacters, currentGroup, skillToggle);
 
   const getRoleClass = (role: string) => {
     switch (role) {
@@ -47,20 +43,22 @@ export default function SuggestionModal({
     }
   };
 
+  const groupUnmet = ['钱', '斗', '天', '黑', '引'].filter((skill) => {
+    const checked = currentGroup.some((c) => (c.needs || []).includes(skill) && skillToggle[skill]);
+    return skillToggle[skill] && !checked;
+  });
+
   const renderDisplay = (char: Character) => {
     if (viewMode === 'name') return `${char.comboBurst ? '@' : ''}${char.name}`;
 
     if (viewMode === 'core') {
-      if (!char.core) return '(无技能)';
-      const visibleCore = Object.entries(char.core).filter(([skill]) => skillToggle[skill]);
-      return visibleCore.length > 0
-        ? visibleCore.map(([k, v]) => (showLevels ? `${v}${k}` : k)).join('  ')
-        : '(无技能)';
+      return '(略过核心展示)'; // core is not used for suggestion scoring
     }
 
     if (viewMode === 'needs') {
-      const visibleNeeds = getFilteredNeeds(char.needs, skillToggle);
-      return visibleNeeds.length > 0 ? visibleNeeds.join(' ') : '无需求';
+      const [contributing, others] = splitNeedsForDisplay(char, groupUnmet, skillToggle);
+      if (contributing.length === 0 && others.length === 0) return '无需求';
+      return contributing.join(' ') + (others.length ? ` | ${others.join(' ')}` : '');
     }
 
     return char.name;
