@@ -6,10 +6,23 @@ import EditCharacterInfo from './EditCharacterInfo';
 import EditCharacterAbilities from './EditCharacterAbilities';
 import CharacterCard from './CharacterCard';
 import styles from './Styles/CharacterPage.module.css';
-import { Character } from '../types';
 
 type Role = 'DPS' | 'Healer' | 'Tank';
 type RolePlusAll = Role | 'All';
+
+type LocalCharacter = {
+  _id?: string;
+  name: string;
+  role: string;
+  account: string;
+  owner: string;
+  class: string;
+  comboBurst: boolean;
+  abilities: {
+    core: { [key: string]: number };
+    healing: { [key: string]: number };
+  };
+};
 
 const roleLabels: { [key in RolePlusAll]: string } = {
   All: '全部',
@@ -26,23 +39,29 @@ const ownerLabels: { [key: string]: string } = {
 };
 
 export default function CharacterPage() {
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [editingChar, setEditingChar] = useState<Character | null>(null);
+  const [characters, setCharacters] = useState<LocalCharacter[]>([]);
+  const [editingChar, setEditingChar] = useState<LocalCharacter | null>(null);
   const [editMode, setEditMode] = useState<'info' | 'abilities' | null>(null);
-
   const [selectedRole, setSelectedRole] = useState<RolePlusAll>('All');
   const [ownerFilter, setOwnerFilter] = useState<string>('All');
 
-  useEffect(() => {
+  const fetchCharacters = () => {
     api.get('/characters')
       .then(res => {
-        const sanitized = res.data.map((c: Character) => ({
+        const sanitized = res.data.map((c: any): LocalCharacter => ({
           ...c,
-          abilities: c.abilities ?? {},
+          abilities: {
+            core: c.abilities?.core ?? {},
+            healing: c.abilities?.healing ?? {},
+          },
         }));
         setCharacters(sanitized);
       })
       .catch(err => console.error('❌ Failed to load:', err));
+  };
+
+  useEffect(() => {
+    fetchCharacters();
   }, []);
 
   const selectRole = (role: RolePlusAll) => {
@@ -53,15 +72,10 @@ export default function CharacterPage() {
     setOwnerFilter(prev => prev === owner ? 'All' : owner);
   };
 
-  const handleSave = (updatedChar: Character): void => {
+  const handleSave = (updatedChar: LocalCharacter): void => {
     api.put(`/characters/${updatedChar._id}`, updatedChar)
-      .then(() => api.get('/characters'))
-      .then(res => {
-        const sanitized = res.data.map((c: Character) => ({
-          ...c,
-          abilities: c.abilities ?? {},
-        }));
-        setCharacters(sanitized);
+      .then(() => {
+        fetchCharacters();
         setEditingChar(null);
         setEditMode(null);
         alert('✅ 保存成功');
@@ -81,7 +95,6 @@ export default function CharacterPage() {
     <main className={styles.container}>
       <h1 className={styles.title}>角色管理</h1>
 
-      {/* Role Filter */}
       <div className={styles.filterRow}>
         <strong>定位:</strong>
         {(Object.keys(roleLabels) as RolePlusAll[]).map(role => (
@@ -96,7 +109,6 @@ export default function CharacterPage() {
         ))}
       </div>
 
-      {/* Owner Filter */}
       <div className={styles.filterRow}>
         <strong>玩家:</strong>
         {Object.keys(ownerLabels).map(owner => (
@@ -135,6 +147,7 @@ export default function CharacterPage() {
             <EditCharacterAbilities
               character={editingChar}
               onCancel={() => { setEditingChar(null); setEditMode(null); }}
+              onSave={() => {}} // ✅ now triggers refresh
             />
           </div>
         </div>

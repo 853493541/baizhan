@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCoreCharacters = getCoreCharacters;
 exports.getFullCharacters = getFullCharacters;
 exports.getCharacterSummary = getCharacterSummary;
+exports.updateCharacter = updateCharacter;
 const db_1 = require("../utils/db");
+const mongodb_1 = require("mongodb");
 const CORE_LIST = ['钱', '斗', '天', '黑', '引'];
 const ABILITY_ALIASES = {
     '天诛': '天',
@@ -109,5 +111,28 @@ async function getCharacterSummary(req, res) {
     catch (err) {
         console.error('Failed to fetch summary:', err);
         res.status(500).json({ error: 'Failed to fetch summary' });
+    }
+}
+async function updateCharacter(req, res) {
+    console.log('🟡 PUT /api/characters/:id hit with ID =', req.params.id);
+    try {
+        const db = await (0, db_1.getDb)();
+        const { id } = req.params;
+        if (!mongodb_1.ObjectId.isValid(id)) {
+            console.log('❌ Invalid ObjectId:', id);
+            return res.status(400).json({ error: 'Invalid character ID' });
+        }
+        const { _id, ...safeUpdate } = req.body;
+        const result = await db.collection('characters').updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: safeUpdate });
+        if (result.matchedCount === 0) {
+            console.log('⚠️ Character not found or unchanged:', id);
+            return res.status(404).json({ error: 'Character not found or no changes' });
+        }
+        console.log('✅ Character updated:', id);
+        res.json({ message: '✅ Character updated successfully' });
+    }
+    catch (err) {
+        console.error('❌ Failed to update character:', err);
+        res.status(500).json({ error: 'Failed to update character' });
     }
 }

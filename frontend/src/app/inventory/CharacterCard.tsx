@@ -1,8 +1,20 @@
 'use client';
 
 import styles from './Styles/CharacterCard.module.css';
-import { Character } from '../types';
 import { getEffectiveAbilities } from '../utils/abilityUtils';
+
+type Character = {
+  name: string;
+  role: string;
+  account: string;
+  owner: string;
+  class: string;
+  comboBurst: boolean;
+  abilities?: {
+    core?: Record<string, number>;
+    healing?: Record<string, number>;
+  };
+};
 
 type Props = {
   character: Character;
@@ -35,7 +47,9 @@ export default function CharacterCard({ character, onEditInfo, onEditAbilities }
   return (
     <div className={`${styles.card} ${getRoleClass(character.role)}`}>
       <div className={styles.cardTopRow}>
-        <div className={styles.cardTitle}>{character.name}</div>
+        <div className={styles.cardTitle}>
+          {character.comboBurst ? `@${character.name}` : character.name}
+        </div>
         <div className={styles.accountInfo}>
           账号:{character.account}
           <button onClick={() => onEditInfo(character)}>⚙️</button>

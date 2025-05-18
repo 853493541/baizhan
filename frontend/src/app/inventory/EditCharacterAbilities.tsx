@@ -4,13 +4,14 @@ import { useState } from 'react';
 import styles from './Styles/EditCharacterAbilities.module.css';
 import axios from 'axios';
 
-export type Character = {
+type LocalCharacter = {
   _id?: string;
   name: string;
-  account: string;
   role: string;
+  account: string;
+  owner: string;
   class: string;
-  comboBurst?: boolean;
+  comboBurst: boolean;
   abilities: {
     core: { [key: string]: number };
     healing: { [key: string]: number };
@@ -18,14 +19,15 @@ export type Character = {
 };
 
 interface Props {
-  character: Character;
+  character: LocalCharacter;
   onCancel: () => void;
+  onSave?: () => void;
 }
 
 const api = process.env.NEXT_PUBLIC_API_BASE;
 
-export default function EditCharacterAbilities({ character, onCancel }: Props) {
-  const [editable, setEditable] = useState<Character>({ ...character });
+export default function EditCharacterAbilities({ character, onCancel, onSave }: Props) {
+  const [editable, setEditable] = useState<LocalCharacter>({ ...character });
   const [status, setStatus] = useState<string | null>(null);
 
   const showStatus = (skill: string, level: number) => {
@@ -34,11 +36,12 @@ export default function EditCharacterAbilities({ character, onCancel }: Props) {
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const saveToBackend = async (updated: Character, skill: string, level: number) => {
+  const saveToBackend = async (updated: LocalCharacter, skill: string, level: number) => {
     if (!updated._id) return;
     try {
       await axios.put(`${api}/characters/${updated._id}`, updated);
       showStatus(skill, level);
+      onSave?.(); // Optional callback to notify parent
     } catch (err) {
       console.error('❌ Failed to auto-save:', err);
     }
@@ -69,7 +72,7 @@ export default function EditCharacterAbilities({ character, onCancel }: Props) {
     };
 
     setEditable(updated);
-    saveToBackend(updated, name, level); // ✅ Auto-save with message
+    saveToBackend(updated, name, level);
   };
 
   const increaseLevel = (name: string) => updateAbilityLevel(name, getLevel(name) + 1);
@@ -87,7 +90,7 @@ export default function EditCharacterAbilities({ character, onCancel }: Props) {
       },
     };
     setEditable(updated);
-    saveToBackend(updated, name, 0); // ✅ Auto-save deletion
+    saveToBackend(updated, name, 0);
   };
 
   const toggleComboBurst = () => {
