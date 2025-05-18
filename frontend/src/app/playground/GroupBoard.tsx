@@ -2,8 +2,7 @@
 import React from 'react';
 import styles from './Styles/page.module.css';
 import { getCheckedNeeds, getGroupWarnings } from './ruleCheckers';
-
-const CORE_SKILLS = ['钱', '斗', '天', '黑', '引'];
+import { getFilteredNeeds, getEnabledCoreSkills, SkillToggle } from './filterSkills';
 
 interface Character {
   name: string;
@@ -21,6 +20,7 @@ interface Props {
   groups: Character[][];
   viewMode: ViewMode;
   showLevels: boolean;
+  skillToggle: SkillToggle;
   onDrop: (e: React.DragEvent, groupIndex: number) => void;
   onDragOver: (e: React.DragEvent) => void;
   onRemove: (groupIndex: number, charIndex: number, char: Character) => void;
@@ -31,6 +31,7 @@ export default function GroupBoard({
   groups,
   viewMode,
   showLevels,
+  skillToggle,
   onDrop,
   onDragOver,
   onRemove,
@@ -51,16 +52,20 @@ export default function GroupBoard({
 
   const renderDisplay = (char: Character) => {
     if (viewMode === 'name') return `${char.comboBurst ? '@' : ''}${char.name}`;
+
     if (viewMode === 'core') {
       if (!char.core) return '(无技能)';
-      return Object.entries(char.core)
-        .map(([k, v]) => (showLevels ? `${v}${k}` : k))
-        .join('  ');
+      const visibleCore = Object.entries(char.core).filter(([skill]) => skillToggle[skill]);
+      return visibleCore.length > 0
+        ? visibleCore.map(([k, v]) => (showLevels ? `${v}${k}` : k)).join('  ')
+        : '(无技能)';
     }
+
     if (viewMode === 'needs') {
-      if (!char.needs) return '(无需求)';
-      return char.needs.length > 0 ? `${char.needs.join(' ')}` : '无需求';
+      const visibleNeeds = getFilteredNeeds(char.needs, skillToggle);
+      return visibleNeeds.length > 0 ? visibleNeeds.join(' ') : '无需求';
     }
+
     return char.name;
   };
 
@@ -69,6 +74,7 @@ export default function GroupBoard({
       {groups.map((group, groupIndex) => {
         const checked = getCheckedNeeds(group);
         const warnings = getGroupWarnings(group);
+        const filteredSkills = getEnabledCoreSkills(skillToggle);
 
         return (
           <div
@@ -95,14 +101,14 @@ export default function GroupBoard({
               </div>
             ))}
 
-            {/* Suggestion Button (functionality later) */}
+            {/* Suggestion Button */}
             <div className={styles.suggestRow}>
               <button className={styles.suggestButton}>＋</button>
             </div>
 
-            {/* ✅ Core Skill Checkboxes */}
+            {/* ✅ Dynamic Core Skill Checkboxes */}
             <div className={styles.checkboxRow}>
-              {CORE_SKILLS.map((skill) => (
+              {filteredSkills.map((skill) => (
                 <div
                   key={skill}
                   className={checked[skill] ? styles.checked : styles.unchecked}

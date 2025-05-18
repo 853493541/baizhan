@@ -1,10 +1,11 @@
-// src/app/playground/PlaygroundPage.tsx
 'use client';
 
 import styles from './Styles/page.module.css';
 import AvailableCharacters from './AvailableCharacters';
 import GroupBoard from './GroupBoard';
 import usePlaygroundState from './usePlaygroundState';
+import SkillTogglePanel from './SkillTogglePanel';
+
 
 export default function PlaygroundPage() {
   const {
@@ -16,6 +17,8 @@ export default function PlaygroundPage() {
     message,
     groupList,
     currentGroupId,
+    skillToggle, // ✅ added
+     setSkillToggle,
     setNewGroupName,
     setViewMode,
     setShowLevels,
@@ -81,13 +84,14 @@ export default function PlaygroundPage() {
           ✅ 提交为当前排表
         </button>
       </div>
-
+        <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
       <h2>可选角色</h2>
       <AvailableCharacters
         characters={allCharacters}
         onDragStart={handleDragStart}
         viewMode={viewMode}
         showLevels={showLevels}
+        skillToggle={skillToggle} // ✅ added
       />
 
       <h2>小队</h2>
@@ -95,6 +99,7 @@ export default function PlaygroundPage() {
         groups={groups}
         viewMode={viewMode}
         showLevels={showLevels}
+        skillToggle={skillToggle} // ✅ added
         onDragOver={handleDragOver}
         onDrop={handleDropEvent}
         onRemove={handleRemoveCharacter}

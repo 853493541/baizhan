@@ -1,4 +1,3 @@
-// src/app/playground/usePlaygroundState.ts
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -21,6 +20,16 @@ interface ActiveSchedule {
 
 export type ViewMode = 'name' | 'core' | 'needs';
 
+export type SkillToggle = Record<string, boolean>;
+
+const defaultSkillToggle: SkillToggle = {
+  钱: true,
+  斗: true,
+  天: true,
+  黑: true,
+  引: true,
+};
+
 export default function usePlaygroundState() {
   const [allCharacters, setAllCharacters] = useState<Character[]>([]);
   const [groups, setGroups] = useState<Character[][]>(Array.from({ length: 8 }, () => []));
@@ -32,6 +41,7 @@ export default function usePlaygroundState() {
   const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
   const [draggedChar, setDraggedChar] = useState<Character | null>(null);
   const [dragSourceGroupIndex, setDragSourceGroupIndex] = useState<number | null>(null);
+  const [skillToggle, setSkillToggle] = useState<SkillToggle>(defaultSkillToggle);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -155,6 +165,8 @@ export default function usePlaygroundState() {
     message,
     groupList,
     currentGroupId,
+    skillToggle,
+    setSkillToggle,
     setNewGroupName,
     setViewMode,
     setShowLevels,

@@ -1,6 +1,7 @@
 // src/app/playground/AvailableCharacters.tsx
 import React from 'react';
 import styles from './Styles/page.module.css';
+import { getFilteredNeeds, SkillToggle } from './filterSkills';
 
 interface Character {
   name: string;
@@ -19,6 +20,7 @@ interface Props {
   onDragStart: (e: React.DragEvent, char: Character) => void;
   viewMode: ViewMode;
   showLevels: boolean;
+  skillToggle: SkillToggle;
 }
 
 export default function AvailableCharacters({
@@ -26,6 +28,7 @@ export default function AvailableCharacters({
   onDragStart,
   viewMode,
   showLevels,
+  skillToggle,
 }: Props) {
   const getRoleClass = (role: string) => {
     switch (role) {
@@ -42,16 +45,20 @@ export default function AvailableCharacters({
 
   const renderDisplay = (char: Character) => {
     if (viewMode === 'name') return `${char.comboBurst ? '@' : ''}${char.name}`;
+
     if (viewMode === 'core') {
       if (!char.core) return '(无技能)';
-      return Object.entries(char.core)
-        .map(([k, v]) => (showLevels ? `${v}${k}` : k))
-        .join('  ');
+      const visibleCore = Object.entries(char.core).filter(([skill]) => skillToggle[skill]);
+      return visibleCore.length > 0
+        ? visibleCore.map(([k, v]) => (showLevels ? `${v}${k}` : k)).join('  ')
+        : '(无技能)';
     }
+
     if (viewMode === 'needs') {
-      if (!char.needs) return '(无需求)';
-      return char.needs.length > 0 ? `${char.needs.join(' ')}` : '无需求';
+      const visibleNeeds = getFilteredNeeds(char.needs, skillToggle);
+      return visibleNeeds.length > 0 ? visibleNeeds.join(' ') : '无需求';
     }
+
     return char.name;
   };
 
