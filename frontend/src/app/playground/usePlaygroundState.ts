@@ -15,7 +15,6 @@ interface ActiveSchedule {
   _id: string;
   name: string;
   groups: Character[][];
-  createdAt: string;
 }
 
 export type ViewMode = 'name' | 'core' | 'needs';
