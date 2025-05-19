@@ -1,3 +1,4 @@
+// backend/controllers/activeSchedulingController.ts
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import ActiveScheduling from '../models/ActiveScheduling';
@@ -26,8 +27,7 @@ export const createSchedule = async (req: Request, res: Response) => {
     const { name } = req.body;
     const newSchedule = await ActiveScheduling.create({
       name,
-      groups: [[], [], [], [], [], [], [], []],
-      createdAt: new Date()
+      groups: [[], [], [], [], [], [], [], []]
     });
     console.log('✅ Created new schedule:', newSchedule.name);
     res.json(newSchedule);

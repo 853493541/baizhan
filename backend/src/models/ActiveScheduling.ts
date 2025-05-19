@@ -1,3 +1,4 @@
+// backend/models/activeScheduling.ts
 import mongoose from 'mongoose';
 
 const CharacterSchema = new mongoose.Schema({
@@ -13,12 +14,10 @@ const CharacterSchema = new mongoose.Schema({
 
 const ActiveSchedulingSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  groups: { type: [[CharacterSchema]], required: true },
-  createdAt: { type: Date, default: Date.now }
+  groups: { type: [[CharacterSchema]], required: true }
 });
 
 const ActiveScheduling = mongoose.models.ActiveScheduling ||
   mongoose.model("ActiveScheduling", ActiveSchedulingSchema, "activeScheduling");
 
 export default ActiveScheduling;
-

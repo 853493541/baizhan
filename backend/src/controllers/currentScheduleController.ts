@@ -3,7 +3,7 @@ import CurrentSchedule from '../models/currentScheduleModel';
 
 export const getCurrentSchedule = async (req: Request, res: Response) => {
   try {
-    const current = await CurrentSchedule.findOne().sort({ createdAt: -1 });
+    const current = await CurrentSchedule.findOne(); // Removed .sort({ createdAt: -1 })
     if (!current) {
       return res.status(404).json({ message: 'No schedule found' });
     }
@@ -33,21 +33,16 @@ export const setCurrentSchedule = async (req: Request, res: Response) => {
     }));
 
     await CurrentSchedule.deleteMany({});
-    await CurrentSchedule.create({
-      groups,
-      weekTag: new Date().toISOString().slice(0, 10),
-      createdAt: new Date(),
-    });
+    await CurrentSchedule.create({ groups }); // ⬅️ Removed weekTag and createdAt
 
     res.send('✅ Schedule saved');
   } catch (err) {
     console.error('❌ Failed to save current schedule:', err);
     res.status(500).send('Error saving current schedule');
   }
-  };
+};
 
-
-  export const updateCurrentSchedule = async (req: Request, res: Response) => {
+export const updateCurrentSchedule = async (req: Request, res: Response) => {
   try {
     const { _id, groups } = req.body;
 

@@ -1,3 +1,4 @@
+// backend/models/currentSchedule.ts
 import mongoose from 'mongoose';
 
 const characterSchema = new mongoose.Schema({
@@ -19,8 +20,6 @@ const groupSchema = new mongoose.Schema({
 }, { _id: false });
 
 const currentScheduleSchema = new mongoose.Schema({
-  weekTag: String,
-  createdAt: Date,
   groups: [groupSchema]
 });
 
