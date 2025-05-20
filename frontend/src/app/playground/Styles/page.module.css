@@ -119,14 +119,15 @@
   background-color: white;
   border-radius: 12px 0 0 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  padding: 1rem 1.25rem;
-  width: max-content; /* shrink container to fit buttons */
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+
+  width: max-content; /* fit content width */
   max-width: 90vw;
   z-index: 10000;
   transition: width 0.3s ease, padding 0.3s ease;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* align buttons left */
+  align-items: flex-start;
 }
 
 .controlCenter.closed {
@@ -138,48 +139,47 @@
 
 .toggleControlBtn {
   position: absolute;
-  left: -36px; /* places the toggle button outside control center left edge */
+  left: -18px; /* outside control panel */
   top: 50%;
   transform: translateY(-50%);
   background-color: #3b82f6;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  border-radius: 20px 0 0 20px; /* vertical pill shape with rounded left side */
+  width: 18px;
+  height: 45px; /* taller than wide */
   color: white;
-  font-weight: bold;
-  font-size: 1.3rem;
+  font-weight: 900;
+  font-size: 1rem;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   user-select: none;
   z-index: 11000;
+
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   line-height: 1;
 }
-
 .scheduleButtons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 0.5rem;
-  width: max-content; /* container shrinks to buttons width */
-  align-items: flex-start; /* align buttons left */
+  gap: 8px;
+  margin-top: 0.25rem;
+  width: max-content; /* fit buttons width */
+  align-items: flex-start;
 }
 
 .saveButton,
 .smartButton,
 .resetButton {
-  padding: 10px 20px;
+  padding: 10px 12px;
   font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   color: white;
-  width: auto; /* allow width to fit content */
-  min-width: 120px; /* optional: minimum width for consistency */
+  width: 100%;
   font-size: 1rem;
   display: flex;
   align-items: center;
