@@ -8,7 +8,7 @@ import usePlaygroundState from './usePlaygroundState';
 import SkillTogglePanel from './SkillTogglePanel';
 import type { Character } from '../types';
 import Link from 'next/link';
-
+import { useState } from 'react';
 
 export default function PlaygroundPage() {
   const {
@@ -31,6 +31,9 @@ export default function PlaygroundPage() {
     handleDropEvent,
     handleRemoveCharacter,
   } = usePlaygroundState();
+
+  // Control center open state
+  const [controlOpen, setControlOpen] = useState(true);
 
   const handleSmartSchedule = async () => {
     try {
@@ -112,93 +115,58 @@ export default function PlaygroundPage() {
     }
   };
 
-  
-  
-  
-  
-  
-  
-  
   //UI
   return (
     <div className={styles.container}>
-
-    {/* Header */}
-    <div className={styles.breadcrumb}>
-      <Link href="/" className={styles.breadcrumbLink}>主页</Link>
-      <span className={styles.breadcrumbDivider}>/</span>
-      <span>排表工作台</span>
-    </div>
-
+      {/* Header */}
+      <div className={styles.breadcrumb}>
+        <Link href="/" className={styles.breadcrumbLink}>
+          主页
+        </Link>
+        <span className={styles.breadcrumbDivider}>/</span>
+        <span>排表工作台</span>
+      </div>
 
       <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
 
       <div className={styles.titleRow}>
-
-
-
-      {/* 排表总控 */}
-<div className={styles.scheduleContainer}>
-  <div className={styles.scheduleLabel}>排表</div>
-  <div className={styles.scheduleButtons}>
-    <button className={styles.saveButton} onClick={handleSubmitCurrentSchedule}>
-      ✅ 提交排表
-    </button>
-    <button className={styles.smartButton} onClick={handleSmartSchedule}>
-      🧠 一键排表
-    </button>
-    <button className={styles.resetButton} onClick={handleResetGroups}>
-      🔁 清空排表
-    </button>
-  </div>
-</div>
-
-      
-
-      {/* end of 排表总控 */}
-
-
-      {/* 选择显示方式 */}
-<div className={styles.modeBlock}>
-  <div className={styles.modeLabel}>显示模式</div>
-  <div className={styles.modeOptions} data-mode={viewMode}>
-    <div className={styles.slider}></div>
-    <button
-      className={`${styles.modeButton} ${viewMode === 'name' ? styles.active : ''}`}
-      onClick={() => setViewMode('name')}
-    >
-      名字
-    </button>
-    <button
-      className={`${styles.modeButton} ${viewMode === 'core' ? styles.active : ''}`}
-      onClick={() => setViewMode('core')}
-    >
-      技能
-    </button>
-    <button
-      className={`${styles.modeButton} ${viewMode === 'needs' ? styles.active : ''}`}
-      onClick={() => setViewMode('needs')}
-    >
-      需求
-    </button>
-  </div>
-  {viewMode === 'core' && (
-    <label className={styles.levelToggle}>
-      <input
-        type="checkbox"
-        checked={showLevels}
-        onChange={() => setShowLevels(!showLevels)}
-      />
-      显示等级
-    </label>
-  )}
-</div>
-
-      {/* end of 选择显示方式 */}
-</div>
-
-
-
+        {/* 选择显示方式 */}
+        <div className={styles.modeBlock}>
+          <div className={styles.modeLabel}>显示模式</div>
+          <div className={styles.modeOptions} data-mode={viewMode}>
+            <div className={styles.slider}></div>
+            <button
+              className={`${styles.modeButton} ${viewMode === 'name' ? styles.active : ''}`}
+              onClick={() => setViewMode('name')}
+            >
+              名字
+            </button>
+            <button
+              className={`${styles.modeButton} ${viewMode === 'core' ? styles.active : ''}`}
+              onClick={() => setViewMode('core')}
+            >
+              技能
+            </button>
+            <button
+              className={`${styles.modeButton} ${viewMode === 'needs' ? styles.active : ''}`}
+              onClick={() => setViewMode('needs')}
+            >
+              需求
+            </button>
+          </div>
+          {viewMode === 'core' && (
+            <label className={styles.levelToggle}>
+              <input
+                type="checkbox"
+                checked={showLevels}
+                onChange={() => setShowLevels(!showLevels)}
+              />
+              显示等级
+            </label>
+          )}
+        </div>
+        {/* end of 选择显示方式 */}
+      </div>
 
       <AvailableCharacters
         characters={allCharacters}
@@ -207,10 +175,6 @@ export default function PlaygroundPage() {
         showLevels={showLevels}
         skillToggle={skillToggle}
       />
-
-
-
-       
 
       <GroupBoard
         groups={groups}
@@ -226,6 +190,43 @@ export default function PlaygroundPage() {
         setSuggestGroupIndex={setSuggestGroupIndex}
         addCharacterToGroup={addCharacterToGroup}
       />
+
+      {/* Control Center */}
+
+
+
+      
+<div className={`${styles.controlCenter} ${controlOpen ? '' : styles.closed}`}>
+  <button
+    className={styles.toggleControlBtn}
+    onClick={() => setControlOpen(!controlOpen)}
+    aria-label={controlOpen ? 'Close control center' : 'Open control center'}
+  >
+    {controlOpen ? '→' : '←'}
+  </button>
+
+  {controlOpen && (
+    <div className={styles.scheduleButtons}>
+      <button className={styles.saveButton} onClick={handleSubmitCurrentSchedule}>
+        ✅ 提交
+      </button>
+      <button className={styles.smartButton} onClick={handleSmartSchedule}>
+        🧠 一键
+      </button>
+      <button className={styles.resetButton} onClick={handleResetGroups}>
+        🔁 清空
+      </button>
+    </div>
+  )}
+</div>
+
+
+
+
+
+
+
+
     </div>
   );
 }
