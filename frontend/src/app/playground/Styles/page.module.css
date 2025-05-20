@@ -139,14 +139,14 @@
 
 .toggleControlBtn {
   position: absolute;
-  left: -18px; /* outside control panel */
+  left: -25px; /* outside control panel */
   top: 50%;
   transform: translateY(-50%);
   background-color: #3b82f6;
   border: none;
-  border-radius: 20px 0 0 20px; /* vertical pill shape with rounded left side */
-  width: 18px;
-  height: 45px; /* taller than wide */
+  border-radius: 5px 0 0 5px; /* vertical pill shape with rounded left side */
+  width: 25px;
+  height: 40px; /* taller than wide */
   color: white;
   font-weight: 900;
   font-size: 1rem;

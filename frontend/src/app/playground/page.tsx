@@ -202,7 +202,7 @@ export default function PlaygroundPage() {
     onClick={() => setControlOpen(!controlOpen)}
     aria-label={controlOpen ? 'Close control center' : 'Open control center'}
   >
-    {controlOpen ? '→' : '←'}
+    {controlOpen ? '▶' : '◀'}
   </button>
 
   {controlOpen && (
