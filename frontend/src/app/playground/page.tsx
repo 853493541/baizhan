@@ -15,20 +15,13 @@ export default function PlaygroundPage() {
     setGroups,
     viewMode,
     showLevels,
-    newGroupName,
-    message,
-    groupList,
-    currentGroupId,
     skillToggle,
     suggestGroupIndex,
     setSuggestGroupIndex,
     addCharacterToGroup,
     setSkillToggle,
-    setNewGroupName,
     setViewMode,
     setShowLevels,
-    setCurrentGroupId,
-    handleCreateNewGroup,
     handleSubmitCurrentSchedule,
     handleDragStart,
     handleDragOver,
@@ -41,20 +34,11 @@ export default function PlaygroundPage() {
       console.log('🧠 开始智能排表流程...');
       const all = [...allCharacters, ...groups.flat()];
 
-      console.log('📡 请求角色需求数据...');
       const summaryRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/characters/summary`);
       const summary = await summaryRes.json();
       const needsCount = summary.needsCount;
 
-      console.log('📊 已获取 needsCount:', needsCount);
-
-      const payload = {
-        characters: all,
-        skillToggle,
-        needsCount,
-      };
-
-      console.log('📤 发送给 Python solver 的数据:', payload);
+      const payload = { characters: all, skillToggle, needsCount };
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_SOLVER_API}/solve`, {
         method: 'POST',
@@ -63,27 +47,18 @@ export default function PlaygroundPage() {
       });
 
       const data = await res.json();
-      console.log('📥 来自 Python 的响应:', data);
 
       if (data.groups) {
-        const nameToCharacter = new Map(
-          all.map((c) => [`${c.name}|${c.account}`, c])
-        );
+        const nameToCharacter = new Map(all.map((c) => [`${c.name}|${c.account}`, c]));
 
         const fullGroups = data.groups.map((group: string[]) =>
           group
             .map((name: string) => {
               const [charName, account] = name.split('|');
-              const char = nameToCharacter.get(`${charName}|${account}`);
-              if (!char) {
-                console.warn(`⚠️ 无法匹配角色: ${name}`);
-              }
-              return char;
+              return nameToCharacter.get(`${charName}|${account}`);
             })
             .filter(Boolean)
         );
-
-        console.log('✅ 组队结果已转换为 Character[][]:', fullGroups);
 
         setGroups(fullGroups);
 
@@ -91,13 +66,16 @@ export default function PlaygroundPage() {
         const remaining = allCharacters.filter((c) => !usedKeys.has(`${c.name}|${c.account}`));
         setAllCharacters(remaining);
 
-        if (currentGroupId) {
-          await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling/${currentGroupId}`, {
+        // Save to DB
+        const scheduleRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling`);
+        const schedules = await scheduleRes.json();
+        const first = schedules[0];
+        if (first?._id) {
+          await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling/${first._id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ groups: fullGroups }),
           });
-          console.log('💾 分组结果已保存到数据库');
         }
       } else {
         console.error('❌ Python 响应中未包含 `groups` 字段');
@@ -109,56 +87,32 @@ export default function PlaygroundPage() {
 
   const handleResetGroups = async () => {
     const all = [...allCharacters, ...groups.flat()];
-    const emptyGroups = Array(8).fill([]);
+    const emptyGroups: Character[][] = Array(8).fill([]);
 
     setAllCharacters(all);
     setGroups(emptyGroups);
     console.log('🔁 所有小队已重置');
 
-    if (currentGroupId) {
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling/${currentGroupId}`, {
+    try {
+      const scheduleRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling`);
+      const schedules = await scheduleRes.json();
+      const first = schedules[0];
+      if (first?._id) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling/${first._id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ groups: emptyGroups }),
         });
         console.log('💾 重置小队保存到数据库');
-      } catch (err) {
-        console.error('❌ 无法保存重置状态:', err);
       }
+    } catch (err) {
+      console.error('❌ 无法保存重置状态:', err);
     }
   };
 
   return (
     <div className={styles.container}>
       <h1>分组总览</h1>
-
-      <div className={styles.createGroupRow}>
-        <input
-          className={styles.groupInput}
-          type="text"
-          placeholder="新分组名称"
-          value={newGroupName}
-          onChange={(e) => setNewGroupName(e.target.value)}
-        />
-        <button onClick={handleCreateNewGroup}>创建新分组</button>
-        {message && <span className={styles.message}>{message}</span>}
-      </div>
-
-      <div className={styles.groupSelectorRow}>
-        <label htmlFor="groupSelect">切换分组:</label>
-        <select
-          id="groupSelect"
-          value={currentGroupId || ''}
-          onChange={(e) => setCurrentGroupId(e.target.value)}
-        >
-          {groupList.map((g) => (
-            <option key={g._id} value={g._id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
-      </div>
 
       <div className={styles.toggleButtons}>
         <button onClick={() => setViewMode('name')}>显示名字</button>
