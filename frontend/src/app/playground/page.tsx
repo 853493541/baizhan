@@ -1,11 +1,14 @@
 'use client';
 
 import styles from './Styles/page.module.css';
+
 import AvailableCharacters from './AvailableCharacters';
 import GroupBoard from './GroupBoard';
 import usePlaygroundState from './usePlaygroundState';
 import SkillTogglePanel from './SkillTogglePanel';
 import type { Character } from '../types';
+import Link from 'next/link';
+
 
 export default function PlaygroundPage() {
   const {
@@ -31,7 +34,7 @@ export default function PlaygroundPage() {
 
   const handleSmartSchedule = async () => {
     try {
-      console.log('🧠 开始智能排表流程...');
+      console.log('开始智能排表流程...');
       const all = [...allCharacters, ...groups.flat()];
 
       const summaryRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/characters/summary`);
@@ -66,7 +69,6 @@ export default function PlaygroundPage() {
         const remaining = allCharacters.filter((c) => !usedKeys.has(`${c.name}|${c.account}`));
         setAllCharacters(remaining);
 
-        // Save to DB
         const scheduleRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/active-scheduling`);
         const schedules = await scheduleRes.json();
         const first = schedules[0];
@@ -110,46 +112,94 @@ export default function PlaygroundPage() {
     }
   };
 
+  
+  
+  
+  
+  
+  
+  
+  //UI
   return (
     <div className={styles.container}>
-      <h1>分组总览</h1>
 
-      <div className={styles.toggleButtons}>
-        <button onClick={() => setViewMode('name')}>显示名字</button>
-        <button onClick={() => setViewMode('core')}>显示技能</button>
-        <button onClick={() => setViewMode('needs')}>显示需求</button>
-        {viewMode === 'core' && (
-          <label style={{ marginLeft: '1rem', fontWeight: '500' }}>
-            <input
-              type="checkbox"
-              checked={showLevels}
-              onChange={() => setShowLevels(!showLevels)}
-              style={{ marginRight: '0.5rem' }}
-            />
-            显示等级
-          </label>
-        )}
-        <button
-          onClick={handleSmartSchedule}
-          className={styles.smartButton}
-          style={{ marginLeft: '2rem' }}
-        >
-          🧠 智能排表
-        </button>
-      </div>
+    {/* Header */}
+    <div className={styles.breadcrumb}>
+      <Link href="/" className={styles.breadcrumbLink}>主页</Link>
+      <span className={styles.breadcrumbDivider}>/</span>
+      <span>排表工作台</span>
+    </div>
 
-      <div className={styles.resetRow}>
-        <button className={styles.resetButton} onClick={handleSubmitCurrentSchedule}>
-          ✅ 提交为当前排表
-        </button>
-        <button className={styles.resetButton} onClick={handleResetGroups}>
-          🔁 重置小队
-        </button>
-      </div>
 
       <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
 
-      <h2>可选角色</h2>
+      <div className={styles.titleRow}>
+
+
+
+      {/* 排表总控 */}
+<div className={styles.scheduleContainer}>
+  <div className={styles.scheduleLabel}>排表</div>
+  <div className={styles.scheduleButtons}>
+    <button className={styles.saveButton} onClick={handleSubmitCurrentSchedule}>
+      ✅ 提交排表
+    </button>
+    <button className={styles.smartButton} onClick={handleSmartSchedule}>
+      🧠 一键排表
+    </button>
+    <button className={styles.resetButton} onClick={handleResetGroups}>
+      🔁 清空排表
+    </button>
+  </div>
+</div>
+
+      
+
+      {/* end of 排表总控 */}
+
+
+      {/* 选择显示方式 */}
+<div className={styles.modeBlock}>
+  <div className={styles.modeLabel}>显示模式</div>
+  <div className={styles.modeOptions} data-mode={viewMode}>
+    <div className={styles.slider}></div>
+    <button
+      className={`${styles.modeButton} ${viewMode === 'name' ? styles.active : ''}`}
+      onClick={() => setViewMode('name')}
+    >
+      名字
+    </button>
+    <button
+      className={`${styles.modeButton} ${viewMode === 'core' ? styles.active : ''}`}
+      onClick={() => setViewMode('core')}
+    >
+      技能
+    </button>
+    <button
+      className={`${styles.modeButton} ${viewMode === 'needs' ? styles.active : ''}`}
+      onClick={() => setViewMode('needs')}
+    >
+      需求
+    </button>
+  </div>
+  {viewMode === 'core' && (
+    <label className={styles.levelToggle}>
+      <input
+        type="checkbox"
+        checked={showLevels}
+        onChange={() => setShowLevels(!showLevels)}
+      />
+      显示等级
+    </label>
+  )}
+</div>
+
+      {/* end of 选择显示方式 */}
+</div>
+
+
+
+
       <AvailableCharacters
         characters={allCharacters}
         onDragStart={handleDragStart}
@@ -158,7 +208,10 @@ export default function PlaygroundPage() {
         skillToggle={skillToggle}
       />
 
-      <h2>小队</h2>
+
+
+       
+
       <GroupBoard
         groups={groups}
         viewMode={viewMode}

@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import styles from './Styles/page.module.css';
+import styles from './Styles/GroupBoard.module.css';
 import { getCheckedNeeds, getGroupWarnings } from './ruleCheckers';
 import { getFilteredNeeds, getEnabledCoreSkills, SkillToggle } from './filterSkills';
 import SuggestionModal from './SuggestionModal';

@@ -1,6 +1,6 @@
 // src/app/playground/AvailableCharacters.tsx
 import React from 'react';
-import styles from './Styles/page.module.css';
+import styles from './Styles/AvailableCharacters.module.css';
 import { getFilteredNeeds, SkillToggle } from './filterSkills';
 
 interface Character {
@@ -61,8 +61,12 @@ export default function AvailableCharacters({
 
     return char.name;
   };
+//UI
 
-  return (
+
+return (
+  <div className={styles.availableContainer}>
+    <div className={styles.availableHeader}>可选角色</div>
     <div className={styles.availableGrid}>
       {characters.map((char, i) => (
         <div
@@ -75,5 +79,5 @@ export default function AvailableCharacters({
         </div>
       ))}
     </div>
-  );
-}
+  </div>
+)}
