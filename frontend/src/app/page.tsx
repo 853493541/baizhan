@@ -11,14 +11,14 @@ export default function HomePage() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.heading}>欢迎来到百战系统</h1>
+      <h1 className={styles.heading}>百战排表工具</h1>
 
       <div className={styles.buttonRow}>
         <button onClick={() => setShowModal(true)} className={styles.primaryBtn}>
-          查看角色总览
+          全局分析
         </button>
-        <Link href="/inventory" className={styles.navBtn}>角色列表</Link>
-        <Link href="/playground" className={styles.navBtn}>百战排组</Link>
+        <Link href="/inventory" className={styles.navBtn}>角色仓库</Link>
+        <Link href="/playground" className={styles.navBtn}>排表工作台</Link>
       </div>
 
       {showModal && <CharacterSummaryModal onClose={() => setShowModal(false)} />}
