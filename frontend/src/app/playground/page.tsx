@@ -127,9 +127,13 @@ export default function PlaygroundPage() {
         <span>排表工作台</span>
       </div>
 
-      <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
+   
 
       <div className={styles.titleRow}>
+
+
+
+        
         {/* 选择显示方式 */}
         <div className={styles.modeBlock}>
           <div className={styles.modeLabel}>显示模式</div>
@@ -175,7 +179,9 @@ export default function PlaygroundPage() {
         showLevels={showLevels}
         skillToggle={skillToggle}
       />
+   <SkillTogglePanel skillToggle={skillToggle} setSkillToggle={setSkillToggle} />
 
+   
       <GroupBoard
         groups={groups}
         viewMode={viewMode}
@@ -191,11 +197,11 @@ export default function PlaygroundPage() {
         addCharacterToGroup={addCharacterToGroup}
       />
 
-      {/* Control Center */}
+    
 
 
 
-      
+        {/* Control Center */}
 <div className={`${styles.controlCenter} ${controlOpen ? '' : styles.closed}`}>
   <button
     className={styles.toggleControlBtn}

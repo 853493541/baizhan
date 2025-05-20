@@ -1,0 +1,95 @@
+.togglePanel {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 1rem;
+}
+
+.togglePanel h3 {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  display: block;
+  font-weight: normal;
+  font-size: 1rem;
+  color: #666666;
+  margin-top: 0.25rem;
+}
+
+.toggleGrid {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.skillButton {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  border: 2px solid transparent;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  min-width: 80px;
+}
+
+/* Active states: colored background, white text, no border */
+.active {
+  color: white;
+  border-color: transparent;
+}
+
+/* Inactive states: white background, black text, colored border */
+.inactive {
+  background-color: white !important;
+  color: black !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+}
+
+/* Boss color backgrounds */
+.bossPurple {
+  background-color: #7b1fa2;
+  border-color: #7b1fa2;
+}
+
+.bossRed {
+  background-color: #ef4444;
+  border-color: #ef4444;
+}
+
+.bossYellow {
+  background-color: #fbbf24;
+  border-color: #fbbf24;
+}
+
+/* When inactive, override background to white but keep border color */
+
+.bossPurple.inactive {
+  background-color: white !important;
+  color: #7b1fa2 !important;
+  border-color: #7b1fa2 !important;
+}
+
+.bossRed.inactive {
+  background-color: white !important;
+  color: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+.bossYellow.inactive {
+  background-color: white !important;
+  color: #a37e18 !important; /* darker yellow shade */
+  border-color: #a37e18 !important;
+}
+
+/* Hover effect */
+.skillButton:hover {
+  filter: brightness(0.9);
+}
