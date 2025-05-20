@@ -211,7 +211,7 @@ export default function PlaygroundPage() {
         ✅ 提交
       </button>
       <button className={styles.smartButton} onClick={handleSmartSchedule}>
-        🧠 一键
+        💡 一键
       </button>
       <button className={styles.resetButton} onClick={handleResetGroups}>
         🔁 清空
